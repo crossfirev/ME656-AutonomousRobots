@@ -86,25 +86,63 @@ num_states = length(x_vector); % number of discrete-time states in trajectory
 %                              ...
 %               x_K - x_(K-1) = ((0.1) + υ^odom_K) * (0.1)
 
-%%%
-% Construct the noisy corrupted measurement `b` vector, with the special uncorrupted initial condition.
-b_vector = zeros(num_states, 1);
-b_vector(1) = 0;
-for k = 2:num_states
-    meas_noise = stdev_odometry.*randn();
-    b_vector(k) = (v_robot + meas_noise) * delta_t;
+%% Deliverable 1: Batch Least-Squares SLAM with Odometry-Only Measurements
+num_of_trials = 1000;
+
+abs_error = zeros(num_of_trials, num_states);
+for run = 1:num_of_trials
+    % Construct the noisy corrupted measurement `b` vector, with the special uncorrupted initial condition.
+    b_vector = zeros(num_states, 1);
+    b_vector(1) = 0;
+    for k = 2:num_states
+        meas_noise = stdev_odometry.*randn();
+        b_vector(k) = (v_vector(k) + meas_noise) * delta_t;
+    end
+
+    % A matrix for the odometry-only case
+    A_matrix = zeros(num_states, num_states);  % n = number of measurements, m = number of unknown states
+    A_matrix(1,1) = 1;  % Special initial-condition row: x_0 = 0
+    for k = 2:num_states
+        A_matrix(k, k-1) = -1;
+        A_matrix(k, k) = 1;
+    end
+
+    % Estimate the states by solving A*x = b for x
+    x_estimates = A_matrix \ b_vector;
+
+
+    % Store this trial's absolute error across all states in row `run`
+    abs_error(run, :) = abs(x_estimates - x_vector(:)).';
 end
+mean_abs_error = mean(abs_error, 1)
+
 
 %
 % Plot Noisy measured displacement over time.
 %
-plot(t_vector(2:end), b_vector(2:end))
-ylabel('Measured displacement per step (m)')
-xlabel('Time (s)')
-title('Noisy odometry displacement measurements')
-grid on
+% figure;
+% plot(t_vector(2:end), b_vector(2:end))
+% ylabel('Measured displacement per step (m)')
+% xlabel('Time (s)')
+% title('Noisy odometry displacement measurements')
+% grid on
 
-odom_measurement_mean = mean(b_vector(2:end))  % Should be ~0.01
-odom_measurement_std = std(b_vector(2:end))    % Should be ~0.01 
-%
-%%%
+% odom_measurement_mean = mean(b_vector(2:end)); % Should be ~0.01
+% odom_measurement_std = std(b_vector(2:end));    % Should be ~0.01 
+
+% figure;
+% plot(t_vector, x_vector, 'LineWidth', 4)
+% hold on
+% plot(t_vector, x_estimates, ':', 'LineWidth', 2)
+% xlabel('Time (s)')
+% ylabel('Position (m)')
+% title('True vs Estimated Robot Position (Odometry Only)')
+% legend('True Position', 'Estimated Position')
+% grid on
+
+% figure;
+% plot(t_vector, abs_error, 'LineWidth', 1.2)
+% xlabel('Time (s)')
+% ylabel('Absolute Position Error (m)')
+% title('Absolute Position Error Over Time')
+% grid on
