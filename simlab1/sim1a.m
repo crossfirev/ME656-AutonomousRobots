@@ -23,9 +23,7 @@ v_vector = ones(1,length(t_vector)).*v_robot;  % robot's true velocity in time
 
 num_states = length(x_vector); % number of discrete-time states in trajectory
 
-%%%%
-%
-%%%%
+%{
 
 %
 %       Ax = b
@@ -85,12 +83,13 @@ num_states = length(x_vector); % number of discrete-time states in trajectory
 %               x_3 - x_2 = ((0.1) + υ^odom_3) * (0.1)
 %                              ...
 %               x_K - x_(K-1) = ((0.1) + υ^odom_K) * (0.1)
+%}
 
 %% Deliverable 1: Batch Least-Squares SLAM with Odometry-Only Measurements
 num_of_trials = 1000;
 
 abs_error = zeros(num_of_trials, num_states);
-for run = 1:num_of_trials
+for trial = 1:num_of_trials
     % Construct the noisy corrupted measurement `b` vector, with the special uncorrupted initial condition.
     b_vector = zeros(num_states, 1);
     b_vector(1) = 0;
@@ -111,14 +110,21 @@ for run = 1:num_of_trials
     x_estimates = A_matrix \ b_vector;
 
 
-    % Store this trial's absolute error across all states in row `run`
-    abs_error(run, :) = abs(x_estimates - x_vector(:)).';
+    % Store this trial's absolute error across all states in row `trial`
+    abs_error(trial, :) = abs(x_estimates - x_vector(:)).';
 end
-mean_abs_error = mean(abs_error, 1)
+mean_abs_error = mean(abs_error, 1);
+figure;
+plot(t_vector, mean_abs_error, 'LineWidth', 1.8)
+xlabel('Time (s)')
+ylabel('Mean Absolute Error (m)')
+title('Deliverable 1: Odometry-Only Batch Least-Squares Mean Absolute Error')
+grid on
 
-
+%{
+%%% Deliverable 1: Supplemental Plots
 %
-% Plot Noisy measured displacement over time.
+%   Plot Noisy measured displacement over time.
 %
 % figure;
 % plot(t_vector(2:end), b_vector(2:end))
@@ -130,6 +136,10 @@ mean_abs_error = mean(abs_error, 1)
 % odom_measurement_mean = mean(b_vector(2:end)); % Should be ~0.01
 % odom_measurement_std = std(b_vector(2:end));    % Should be ~0.01 
 
+
+%
+%   Plot Truth vs Estimate, Robot Position
+%
 % figure;
 % plot(t_vector, x_vector, 'LineWidth', 4)
 % hold on
@@ -140,9 +150,14 @@ mean_abs_error = mean(abs_error, 1)
 % legend('True Position', 'Estimated Position')
 % grid on
 
+
+%
+%   Plot Single Trial Absolute Position Error over Time
+%
 % figure;
-% plot(t_vector, abs_error, 'LineWidth', 1.2)
+% plot(t_vector, abs_error(1, :), 'LineWidth', 1.2)
 % xlabel('Time (s)')
 % ylabel('Absolute Position Error (m)')
 % title('Absolute Position Error Over Time')
 % grid on
+%}
