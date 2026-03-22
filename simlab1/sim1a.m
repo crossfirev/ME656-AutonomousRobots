@@ -125,7 +125,7 @@ grid on
 %%% Deliverable 1: Supplemental Plots
 
 %
-% Plot Noisy measured displacement over time.
+%   Plot Noisy measured displacement over time.
 %
 % figure;
 % plot(t_vector(2:end), b_vector(2:end))
@@ -137,6 +137,10 @@ grid on
 % odom_measurement_mean = mean(b_vector(2:end)); % Should be ~0.01
 % odom_measurement_std = std(b_vector(2:end));    % Should be ~0.01 
 
+
+%
+%   Plot Truth vs Estimate, Robot Position
+%
 % figure;
 % plot(t_vector, x_vector, 'LineWidth', 4)
 % hold on
@@ -147,6 +151,10 @@ grid on
 % legend('True Position', 'Estimated Position')
 % grid on
 
+
+%
+%   Plot Single Trial Absolute Position Error over Time
+%
 % figure;
 % plot(t_vector, abs_error, 'LineWidth', 1.2)
 % xlabel('Time (s)')
