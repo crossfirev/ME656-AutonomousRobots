@@ -23,9 +23,7 @@ v_vector = ones(1,length(t_vector)).*v_robot;  % robot's true velocity in time
 
 num_states = length(x_vector); % number of discrete-time states in trajectory
 
-%%%%
-%
-%%%%
+%{
 
 %
 %       Ax = b
@@ -85,6 +83,7 @@ num_states = length(x_vector); % number of discrete-time states in trajectory
 %               x_3 - x_2 = ((0.1) + υ^odom_3) * (0.1)
 %                              ...
 %               x_K - x_(K-1) = ((0.1) + υ^odom_K) * (0.1)
+%}
 
 %% Deliverable 1: Batch Least-Squares SLAM with Odometry-Only Measurements
 num_of_trials = 1000;
@@ -122,8 +121,8 @@ ylabel('Mean Absolute Error (m)')
 title('Deliverable 1: Odometry-Only Batch Least-Squares Mean Absolute Error')
 grid on
 
+%{
 %%% Deliverable 1: Supplemental Plots
-
 %
 %   Plot Noisy measured displacement over time.
 %
@@ -161,3 +160,4 @@ grid on
 % ylabel('Absolute Position Error (m)')
 % title('Absolute Position Error Over Time')
 % grid on
+%}
