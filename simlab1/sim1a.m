@@ -155,7 +155,7 @@ grid on
 %   Plot Single Trial Absolute Position Error over Time
 %
 % figure;
-% plot(t_vector, abs_error, 'LineWidth', 1.2)
+% plot(t_vector, abs_error(1, :), 'LineWidth', 1.2)
 % xlabel('Time (s)')
 % ylabel('Absolute Position Error (m)')
 % title('Absolute Position Error Over Time')
