@@ -113,9 +113,9 @@ for trial = 1:num_of_trials
     % Store this trial's absolute error across all states in row `trial`
     abs_error(trial, :) = abs(x_estimates - x_vector(:)).';
 end
-mean_abs_error = mean(abs_error, 1);
+mean_state_abs_error = mean(abs_error, 1);
 figure;
-plot(t_vector, mean_abs_error, 'LineWidth', 1.8)
+plot(t_vector, mean_state_abs_error, 'LineWidth', 1.8)
 xlabel('Time (s)')
 ylabel('Mean Absolute Error (m)')
 title('Deliverable 1: Odometry-Only Batch Least-Squares Mean Absolute Error')
