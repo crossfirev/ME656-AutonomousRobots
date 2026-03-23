@@ -129,7 +129,6 @@ function sim2
 
         % Solve for all robot poses and landmark locations in one batch.
         state_estimates = A_valid \ b_valid;
-        pose_estimates = state_estimates(1:num_states);
         landmark_estimates = state_estimates(num_states + 1:end);
 
         state_truth = [x_vector(:); landmarks(:)];
