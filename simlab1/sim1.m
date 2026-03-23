@@ -30,9 +30,9 @@ num_states = length(x_vector); % number of discrete-time states in trajectory
 %
 %  `A`          : measurement/design matrix
 %  `x`          : unknown state vector we are solving for
-%                   Contains robot position at every time-step, 3 static landmark positions; (And doesn't include robot velocities)                    
+%                   Contains robot position at every time-step; (And doesn't include robot velocities)                    
 %
-%                      x = [x_0, x_1, x_2, ..., x_K, l_1, l_2, l_3]^T
+%                      x = [x_0, x_1, x_2, ..., x_K]^T
 %
 %  `b`          : measurement vector built from noisy simulated measurements
 
@@ -94,7 +94,7 @@ for trial = 1:num_of_trials
     b_vector = zeros(num_states, 1);
     b_vector(1) = 0;
     for k = 2:num_states
-        meas_noise = stdev_odometry.*randn();
+        meas_noise = stdev_odometry*randn();
         b_vector(k) = (v_vector(k) + meas_noise) * delta_t;
     end
 
