@@ -91,12 +91,25 @@ function sim2
     end
 
     %% Deliverable 2: Batch Least-Squares SLAM with Odometry + Landmark Measurements
-    num_of_trials = 30;
+    num_of_trials = 1000;
+    
+    % Build the matching linear measurement matrix.
+    A_matrix = zeros(num_states + num_landmarks * num_states, num_states + num_landmarks);
+    A_matrix(1, 1) = 1;  % Special initial-condition row: x_0 = 0
+    A_matrix = AStorageHandling(A_matrix, 1);
+    
+    for k = 2:num_states
+        A_matrix(k, k-1) = -1;
+        A_matrix(k, k) = 1;
+        A_matrix = AStorageHandling(A_matrix, k);
+    end
+    
     t0 = tic;
     h = waitbar(0, 'Starting...');
     cleanupObj = onCleanup(@() close(h));
 
     state_abs_error = zeros(num_of_trials, num_states + num_landmarks);
+    landmark_estimate_history = zeros(num_of_trials, num_landmarks);
     for trial = 1:num_of_trials
         % Build the measurement vector: initial condition, odometry, then
         % in-range landmark observations.
@@ -111,36 +124,32 @@ function sim2
             b_vector = bStorageHandling(b_vector, time_step);
         end
 
-        % Build the matching linear measurement matrix.
-        A_matrix = zeros(num_states + num_landmarks * num_states, num_states + num_landmarks);
-        A_matrix(1, 1) = 1;  % Special initial-condition row: x_0 = 0
-        A_matrix = AStorageHandling(A_matrix, 1);
-
-        for k = 2:num_states
-            A_matrix(k, k-1) = -1;
-            A_matrix(k, k) = 1;
-            A_matrix = AStorageHandling(A_matrix, k);
-        end
-
         % Remove placeholder rows for landmarks that were out of range.
         valid_rows = ~isnan(b_vector);
         b_valid = b_vector(valid_rows);
-        A_valid = A_matrix(valid_rows, :);
+        if trial == 1
+            A_valid = A_matrix(valid_rows, :);
+        end
 
         % Solve for all robot poses and landmark locations in one batch.
         state_estimates = A_valid \ b_valid;
         landmark_estimates = state_estimates(num_states + 1:end);
+        landmark_estimate_history(trial, :) = landmark_estimates.';
 
         state_truth = [x_vector(:); landmarks(:)];
         state_abs_error(trial, :) = abs(state_estimates - state_truth).';
 
-        elapsed = toc(t0);
-        eta = elapsed * (num_of_trials - trial) / trial;
-        msg = sprintf('Progress: %d/%d | ETA: %.1f s', trial, num_of_trials, eta);
-        waitbar(trial / num_of_trials, h, msg);
+        if mod(trial, 25) == 0 || trial == 1 || trial == num_of_trials
+            elapsed = toc(t0);
+            eta = elapsed * (num_of_trials - trial) / trial;
+            msg = sprintf('Progress: %d/%d | ETA: %.1f s', trial, num_of_trials, eta);
+            waitbar(trial / num_of_trials, h, msg);
+        end
+
     end
 
     mean_state_abs_error = mean(state_abs_error, 1);
+    mean_landmark_estimates = mean(landmark_estimate_history, 1).';
     mean_pose_abs_error = mean_state_abs_error(1:num_states);
     mean_landmark_abs_error = mean_state_abs_error(num_states + 1:end);
 
@@ -151,6 +160,6 @@ function sim2
     title('Mean Absolute Position Error Over Time')
     grid on
 
-    disp(table((1:num_landmarks).', landmarks, landmark_estimates, mean_landmark_abs_error(:), ...
-        'VariableNames', {'Landmark', 'Truth', 'Estimate', 'MeanAbsError'}))
+    disp(table((1:num_landmarks).', landmarks, mean_landmark_estimates, mean_landmark_abs_error(:), ...
+        'VariableNames', {'Landmark', 'Truth', 'MeanEstimate', 'MeanAbsError'}))
 end
