@@ -32,3 +32,5 @@ sim2
 % within sensing range of landmarks. This demonstrates the core benefit of
 % SLAM: map features do not just get estimated, they also improve
 % localization accuracy by constraining the robot's trajectory.
+
+sim3
