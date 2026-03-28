@@ -74,7 +74,9 @@ For Deliverable 4, the Kalman filter was extended to use both odometry and landm
 
 The robot's observation of landmarks clearly reduces the growth of error. Between landmark sightings, the filter behaves similarly to the odometry-only case and uncertainty gradually increases. When a landmark comes into range, the extra measurement constrains the robot position and the predicted standard deviation drops. The empirical mean absolute error also decreases or grows more slowly in those regions.
 
-This result differs from least squares because the Kalman filter is incremental, while batch least squares solves for the entire trajectory at once. In batch least squares, all measurements over the whole run are used simultaneously, so later measurements can influence earlier estimated poses. In contrast, the Kalman filter only uses the information available up to the current time step and does not retrospectively smooth the entire trajectory. The Kalman filter also provides a covariance-based uncertainty estimate, which the least-squares plots do not directly provide.
+In the results obtained here, the Kalman filter also outperforms the corresponding batch least-squares result. Comparing Deliverable 4 with Deliverable 2, the landmark-aware Kalman filter maintains a substantially lower error level over the hallway traversal, making it the strongest one-way estimator in these simulations.
+
+This result differs from least squares because the Kalman filter is incremental, while batch least squares solves for the entire trajectory at once. In batch least squares, all measurements over the whole run are used simultaneously, so later measurements can influence earlier estimated poses. In contrast, the Kalman filter only uses the information available up to the current time step and does not retrospectively smooth the entire trajectory. In spite of that, the Kalman filter produced the lower error in these runs, while also providing a covariance-based uncertainty estimate that the least-squares plots do not directly provide.
 
 \section{Deliverable 5: Batch Least Squares with Back-and-Forth Loop Closures}
 For Deliverable 5, the batch least-squares formulation from Deliverable 2 was extended so the robot traveled to the end of the hallway and then returned to the origin at $-0.1$ m/s. This doubles the traversal duration and causes the robot to re-observe the same landmarks on the return trip.
@@ -88,9 +90,9 @@ For Deliverable 5, the batch least-squares formulation from Deliverable 2 was ex
 Yes, the re-observation of landmarks has a meaningful impact on the robot's ability to curb the growth of error. These repeated landmark observations act as loop-closure constraints: later robot poses are connected back to the same fixed landmark states observed earlier in the run. As a result, accumulated drift is reduced on the return trip, and the full back-and-forth trajectory estimate is better constrained than it would be without those repeated observations.
 
 \section{Conclusion}
-Across all five deliverables, the main pattern is consistent: odometry alone leads to steadily increasing localization error, while landmark observations reduce drift by anchoring the robot to fixed features in the hallway. The Kalman filter and batch least-squares formulations both benefit from landmark sensing, but they differ in how information is incorporated. Batch least squares uses all measurements at once over the entire trajectory, while the Kalman filter performs recursive estimation and carries forward a covariance-based uncertainty model.
+Across all five deliverables, the main pattern is consistent: odometry alone leads to steadily increasing localization error, while landmark observations reduce drift by anchoring the robot to fixed features in the hallway. In the results obtained for this assignment, the Kalman filter outperformed the batch least-squares approach overall, with the landmark-aware Kalman filter in Deliverable 4 producing the lowest sustained error among the one-way hallway traversals.
 
-The strongest improvement appears when the robot can repeatedly observe landmarks, especially in the back-and-forth traversal. Those loop-closure-style constraints provide additional information that helps suppress accumulated drift and improve the overall trajectory estimate.
+The back-and-forth batch least-squares case in Deliverable 5 still demonstrates an important SLAM effect: repeated landmark observations on the return trip help reduce accumulated drift through loop-closure-style constraints. Even so, based on the plots generated here, the Kalman filter produced the best overall localization performance in this project while also providing an explicit covariance-based uncertainty estimate.
 
 \section{Included MATLAB Files}
 The MATLAB source associated with this report is organized as follows:
@@ -105,4 +107,3 @@ The MATLAB source associated with this report is organized as follows:
 \end{itemize}
 
 \end{document}
-
