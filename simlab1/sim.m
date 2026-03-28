@@ -4,9 +4,10 @@
 % Assignment: SimLab 1
 % File: sim.m
 %
-% This driver script runs the batch least-squares simulations for:
+% This driver script runs the simulations for:
 %   sim1 -> Deliverable 1: odometry-only batch least-squares SLAM
 %   sim2 -> Deliverable 2: batch least-squares SLAM with landmark sensing
+%   sim3 -> Deliverable 3: odometry-only Kalman filter SLAM
 %}
 
 % Run Deliverable 1. This script estimates the robot trajectory using only
@@ -33,4 +34,22 @@ sim2
 % SLAM: map features do not just get estimated, they also improve
 % localization accuracy by constraining the robot's trajectory.
 
+% Run Deliverable 3. This script switches from batch least-squares to an
+% incremental Kalman filter with odometry-only sensing and plots both the
+% mean absolute position error and the filter-predicted position standard
+% deviation over time.
 sim3
+
+%
+% Deliverable 3 shows the same odometry-only drift behavior as Deliverable 1,
+% but now through the lens of recursive state estimation. Because the Kalman
+% filter only receives noisy velocity measurements and no landmark updates,
+% its position estimate becomes progressively less certain as the robot moves
+% down the hallway. That growing uncertainty appears both in the empirical
+% mean absolute error curve and in the covariance-based standard deviation.
+%
+% Comparing these two curves is useful because it checks whether the filter's
+% internal uncertainty estimate is consistent with what actually happens over
+% many trials. In the odometry-only case, both curves should increase with
+% time, reflecting the fact that motion noise accumulates when there is no
+% external position correction.
