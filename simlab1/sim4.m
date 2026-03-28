@@ -30,18 +30,21 @@ num_states = length(x_vector); % number of discrete-time pose states
 %   X_(k+1) = A * X_k + w_k
 % where the robot keeps a constant velocity and the landmarks remain static.
 %
-% Deliverable 3 uses odometry-only updates:
-%   z_k = H * X_k + n_k
-% with H = [1 0 0 0 0], so odometry is modeled as a direct noisy
-% measurement of the velocity state.
+% Deliverable 4 uses both odometry and landmark updates:
+%   z_k = H_k * X_k + n_k
+% The measurement model changes size with time because the robot always
+% receives one odometry measurement, and may also receive one or more
+% landmark range measurements whenever landmarks fall within sensor range.
+%
+% Odometry is modeled as a direct noisy measurement of the velocity state.
+% Landmark range measurements are modeled as signed displacement:
+%   l_j - x_k + noise
+% which keeps the measurement model linear in the unknown states.
 %
 % The initial covariance reflects:
 %   var(v_0) = 1
 %   var(x_0) = 0.0001
 %   var(l_j) = 1
-%
-% Landmark states stay in the vector for consistency with later
-% deliverables, but they are not observed in this odometry-only case.
 
 Q_11 = 1e-8;
 
@@ -67,6 +70,7 @@ A = [ 1, 0, 0, 0, 0;    delta_t, 1, 0, 0, 0;    0, 0, 1, 0, 0;      0, 0, 0, 1, 
 Q = [ Q_11, 0, 0, 0, 0; 0, 0, 0, 0, 0;          0, 0, 0, 0, 0;      0, 0, 0, 0, 0;      0, 0, 0, 0, 0 ];
 
     function in_range = inRange(time_step, true_landmark_pose)
+        % Return whether the robot can sense this landmark at the current time-step.
         if abs(true_landmark_pose - x_vector(time_step)) <= sensor_range
             in_range = true;
         else
@@ -75,6 +79,7 @@ Q = [ Q_11, 0, 0, 0, 0; 0, 0, 0, 0, 0;          0, 0, 0, 0, 0;      0, 0, 0, 0, 
     end
 
     function landmarks_in_range = whichInRange(time_step)
+        % Collect the indices of all landmarks that are visible right now.
         landmarks_in_range = [];
         for landmark = 1:num_landmarks
             true_landmark_pose = landmarks(landmark);
@@ -86,6 +91,9 @@ Q = [ Q_11, 0, 0, 0, 0; 0, 0, 0, 0, 0;          0, 0, 0, 0, 0;      0, 0, 0, 0, 
     end
 
     function H = genH(time_step)
+        % Build the time-varying measurement matrix.
+        % Row 1 is odometry, and each additional row encodes:
+        %   l_j - x_k = z_range(k,j)
         in_range_landmarks = whichInRange(time_step);
 
         H = [1, 0, 0, 0, 0];
@@ -98,13 +106,16 @@ Q = [ Q_11, 0, 0, 0, 0; 0, 0, 0, 0, 0;          0, 0, 0, 0, 0;      0, 0, 0, 0, 
     end
 
     function R = genR(time_step)
+        % Build the time-varying diagonal sensor covariance matrix.
+        % Odometry is always present; each visible landmark adds one
+        % independent range variance on the diagonal.
         in_range_landmarks = whichInRange(time_step);
         
-        stdevs = stdev_odometry^2;
+        variances = stdev_odometry^2;
         for landmark = in_range_landmarks
-            stdevs = [stdevs, stdev_range^2];
+            variances = [variances, stdev_range^2];
         end
-        R = diag(stdevs);
+        R = diag(variances);
     end
 
     function [x_k_predict, P_k_predict] = predict(x_k_last, P_k_last)
@@ -114,7 +125,7 @@ Q = [ Q_11, 0, 0, 0, 0; 0, 0, 0, 0, 0;          0, 0, 0, 0, 0;      0, 0, 0, 0, 
     end
 
     function [x_k, P_k] = correct(x_k_predict, P_k_predict, z_k, H, R)
-        % Measurement update with the current odometry reading.
+        % Measurement update with the current odometry and landmark readings.
         H_T = transpose(H);
 
         K_k = P_k_predict * H_T / (H * P_k_predict * H_T + R);
@@ -130,6 +141,7 @@ Q = [ Q_11, 0, 0, 0, 0; 0, 0, 0, 0, 0;          0, 0, 0, 0, 0;      0, 0, 0, 0, 
     end
 
     function [landmark1_meas, landmark2_meas, landmark3_meas] = landmarkMeasurements(time_step)
+        % Simulate signed range measurements for any landmarks currently in range.
         measurements = nan(1, num_landmarks);
         for landmark = 1:num_landmarks
             true_landmark_pose = landmarks(landmark);
@@ -138,7 +150,7 @@ Q = [ Q_11, 0, 0, 0, 0; 0, 0, 0, 0, 0;          0, 0, 0, 0, 0;      0, 0, 0, 0, 
                 true_robot_pose = x_vector(time_step);
                 range_sensor_noise = stdev_range * randn();
 
-                % Signed displacement keeps the batch system linear.
+                % Signed displacement keeps the Kalman measurement model linear.
                 noisy_range_to_landmark = true_landmark_pose - true_robot_pose + range_sensor_noise;
                 measurements(landmark) = noisy_range_to_landmark;
             end
@@ -151,7 +163,7 @@ Q = [ Q_11, 0, 0, 0, 0; 0, 0, 0, 0, 0;          0, 0, 0, 0, 0;      0, 0, 0, 0, 
         % Build the measurement vector for one time-step.
         % Deliverable 4 uses odometry and landmark sensing.
         velocity_meas = odometryMeasurement(time_step);
-        position_meas = nan;  % No position measurement
+        position_meas = nan;  % No direct position measurement
         [landmark1_meas, landmark2_meas, landmark3_meas] = landmarkMeasurements(time_step);
 
         z_k = [
@@ -165,7 +177,7 @@ Q = [ Q_11, 0, 0, 0, 0; 0, 0, 0, 0, 0;          0, 0, 0, 0, 0;      0, 0, 0, 0, 
         z_k = z_k(valid_rows);
     end
 
-%% Deliverable 3: Odometry-Only Kalman Filter
+%% Deliverable 4: Kalman Filter with Odometry + Landmark Measurements
 num_of_trials = 1000;
 
 std_position_error = zeros(1, num_states);
@@ -183,7 +195,7 @@ for trial = 1:num_of_trials
         % Step 1: Predict
         [x_k_predict, P_k_predict] = predict(x_k_last, P_k_last);
 
-        % Step 2: Correct
+        % Step 2: Correct using the available measurements at this time-step.
         z_k = gatherMeasurements(k);
         H = genH(k);
         R = genR(k);
@@ -211,7 +223,7 @@ hold on
 plot(t_vector, std_position_error, '--', 'LineWidth', 1.2)
 xlabel('Time (s)')
 ylabel('Error / Predicted Standard Deviation (m)')
-title('Odometry-Only Kalman Filter: Mean Absolute Error and Predicted Position Std Dev')
+title('Kalman Filter with Landmark Sensing: Mean Absolute Error and Predicted Position Std Dev')
 legend('Mean Absolute Position Error', 'Predicted Position Std Dev', 'Location', 'northwest')
 grid on
 end
