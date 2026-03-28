@@ -9,30 +9,29 @@ stdev_odometry = 0.1; % m/s
 stdev_range = 0.01; % m
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Robot ground-truth trajectory for the hallway traversal
+% Robot ground-truth trajectory for the back-and-forth hallway traversal
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 delta_t = 0.1; % time is discretized with a time-step of 0.1 seconds
-v_robot = 0.1; % robot travels at a constant speed of 0.1 m/s
-v_robot_rev = -0.1;
+v_robot = 0.1; % robot travels toward the end of the hallway at 0.1 m/s
+v_robot_rev = -0.1; % robot returns to the origin at -0.1 m/s
 
-t_terminal = length_hallway / v_robot; % time that we reach the end of hall
-t_terminal_rev = -length_hallway / v_robot_rev;
+t_terminal = length_hallway / v_robot; % time when the robot first reaches the end of hall
+t_terminal_rev = -length_hallway / v_robot_rev; % time needed to return to the origin
 t_terminal_total = t_terminal + t_terminal_rev;
 
-t_vector = 0:delta_t:t_terminal; % time vector for robot's trajectory
-t_vector_rev = t_terminal+delta_t:delta_t:t_terminal_total;
+t_vector = 0:delta_t:t_terminal; % forward-leg time vector
+t_vector_rev = t_terminal+delta_t:delta_t:t_terminal_total; % return-leg time vector
 t_vector_total = [t_vector, t_vector_rev];
 
-x_vector = 0:v_robot*delta_t:length_hallway; % true robot position over time
-x_vector_rev = length_hallway+v_robot_rev*delta_t:v_robot_rev*delta_t:0;
+x_vector = 0:v_robot*delta_t:length_hallway; % forward-leg ground-truth positions
+x_vector_rev = length_hallway+v_robot_rev*delta_t:v_robot_rev*delta_t:0; % return-leg ground-truth positions
 x_vector_total = [x_vector, x_vector_rev];
 
-v_vector = ones(1, length(t_vector)) .* v_robot; % true robot velocity over time
-v_vector_rev = ones(1, length(t_vector_rev)) .* v_robot_rev;
+v_vector = ones(1, length(t_vector)) .* v_robot; % forward-leg velocity history
+v_vector_rev = ones(1, length(t_vector_rev)) .* v_robot_rev; % return-leg velocity history
 v_vector_total = [v_vector, v_vector_rev];
 
 num_states = length(x_vector_total); % number of discrete-time pose states
-
 
 % Batch least-squares state:
 %   [x_0, x_1, ..., x_K, l_1, l_2, l_3]^T
@@ -45,14 +44,20 @@ num_states = length(x_vector_total); % number of discrete-time pose states
 %   l_j - x_k = z_range(k,j)
 % This keeps the landmark measurement model linear in the unknown states.
 %
+% Deliverable 5 extends Deliverable 2 by sending the robot to the end of
+% the hallway and then back to the origin. Re-observing the same landmarks
+% on the return trip creates loop-closure constraints in the batch system.
+%
 % Row 1 is the special initial-condition constraint x_0 = 0.
 
 function measurement = odometryMeasurement(time_step)
+    % Simulate one noisy odometry displacement measurement.
     odo_noise = stdev_odometry * randn();
     measurement = (v_vector_total(time_step) + odo_noise) * delta_t;
 end
 
 function in_range = inRange(time_step, true_landmark_pose)
+    % Return whether the robot can sense this landmark at the current time-step.
     if abs(true_landmark_pose - x_vector_total(time_step)) <= sensor_range
         in_range = true;
     else
@@ -61,6 +66,7 @@ function in_range = inRange(time_step, true_landmark_pose)
 end
 
 function measurements = sensorMeasurements(time_step)
+    % Simulate signed landmark measurements for all landmarks currently in range.
     measurements = zeros(num_landmarks, 1);
     for landmark = 1:num_landmarks
         true_landmark_pose = landmarks(landmark);
@@ -101,7 +107,7 @@ function A_matrix = AStorageHandling(A_matrix, time_step)
     end
 end
 
-%% Deliverable 2: Batch Least-Squares SLAM with Odometry + Landmark Measurements
+%% Deliverable 5: Batch Least-Squares SLAM with Back-and-Forth Landmark Reobservations
 num_of_trials = 1000;
 
 % Build the matching linear measurement matrix.
@@ -123,7 +129,7 @@ state_abs_error = zeros(num_of_trials, num_states + num_landmarks);
 landmark_estimate_history = zeros(num_of_trials, num_landmarks);
 for trial = 1:num_of_trials
     % Build the measurement vector: initial condition, odometry, then
-    % in-range landmark observations.
+    % in-range landmark observations across the full there-and-back motion.
     num_pose_landmark_states = num_states + num_landmarks * num_states;
     b_vector = zeros(num_pose_landmark_states, 1);
 
@@ -167,8 +173,7 @@ figure;
 plot(t_vector_total, mean_pose_abs_error, 'LineWidth', 1.2)
 xlabel('Time (s)')
 ylabel('Absolute Position Error (m)')
-title('Mean Absolute Position Error Over Time')
-grid on
+title('Deliverable 5: Mean Absolute Position Error Over Back-and-Forth Traversal')
 
 disp(table((1:num_landmarks).', landmarks, mean_landmark_estimates, mean_landmark_abs_error(:), ...
     'VariableNames', {'Landmark', 'Truth', 'MeanEstimate', 'MeanAbsError'}))
