@@ -1,3 +1,4 @@
+function sim1
 length_hallway = 10;  % m
 sensor_range = 0.5;  % m
 
@@ -103,3 +104,4 @@ grid on
 % title('Absolute Position Error Over Time')
 % grid on
 %}
+end
