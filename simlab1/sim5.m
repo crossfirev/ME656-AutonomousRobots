@@ -174,6 +174,7 @@ plot(t_vector_total, mean_pose_abs_error, 'LineWidth', 1.2)
 xlabel('Time (s)')
 ylabel('Mean Absolute Robot Position Error (m)')
 title('Deliverable 5: Mean Absolute Robot Position Error (Batch Least-Squares, Back-and-Forth Loop Closures)')
+ylim([0, 0.35])
 grid on
 
 disp(table((1:num_landmarks).', landmarks, mean_landmark_estimates, mean_landmark_abs_error(:), ...

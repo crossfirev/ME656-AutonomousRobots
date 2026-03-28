@@ -66,6 +66,7 @@ plot(t_vector, mean_state_abs_error, 'LineWidth', 1.8)
 xlabel('Time (s)')
 ylabel('Mean Absolute Robot Position Error (m)')
 title('Deliverable 1: Mean Absolute Robot Position Error (Batch Least-Squares, Odometry Only)')
+ylim([0, 0.35])
 grid on
 
 %{
@@ -78,7 +79,8 @@ grid on
 % ylabel('Measured displacement per step (m)')
 % xlabel('Time (s)')
 % title('Noisy odometry displacement measurements')
-% grid on
+% ylim([0, 0.35])
+grid on
 
 % odom_measurement_mean = mean(b_vector(2:end)); % Should be ~0.01
 % odom_measurement_std = std(b_vector(2:end));   % Should be ~0.01
@@ -93,7 +95,8 @@ grid on
 % ylabel('Position (m)')
 % title('True vs Estimated Robot Position (Odometry Only)')
 % legend('True Position', 'Estimated Position')
-% grid on
+% ylim([0, 0.35])
+grid on
 
 % Plot single-trial absolute position error over time.
 %
@@ -102,6 +105,7 @@ grid on
 % xlabel('Time (s)')
 % ylabel('Absolute Position Error (m)')
 % title('Absolute Position Error Over Time')
-% grid on
+% ylim([0, 0.35])
+grid on
 %}
 end

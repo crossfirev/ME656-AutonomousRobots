@@ -225,5 +225,6 @@ xlabel('Time (s)')
 ylabel('Robot Position Error / Predicted Std Dev (m)')
 title('Deliverable 4: Mean Absolute Robot Position Error and Predicted Position Std Dev (Kalman Filter, Odometry + Landmark Sensing)')
 legend('Mean Absolute Robot Position Error', 'Predicted Robot Position Std Dev', 'Location', 'northwest')
+ylim([0, 0.35])
 grid on
 end
