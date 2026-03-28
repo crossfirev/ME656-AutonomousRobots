@@ -9,6 +9,7 @@
 %   sim2 -> Deliverable 2: batch least-squares SLAM with landmark sensing
 %   sim3 -> Deliverable 3: odometry-only Kalman filter SLAM
 %   sim4 -> Deliverable 4: Kalman filter SLAM with landmark sensing
+%   sim5 -> Deliverable 5: batch least-squares SLAM with back-and-forth loop closures
 %}
 
 % Run Deliverable 1. This script estimates the robot trajectory using only
@@ -73,3 +74,21 @@ sim4
 % visibility windows. This highlights the same SLAM benefit seen in
 % Deliverable 2, but now in an incremental filter setting rather than a
 % batch least-squares solve.
+
+% Run Deliverable 5. This script returns to the batch least-squares SLAM
+% formulation, but now sends the robot to the end of the hallway and back
+% to the origin so the same landmarks are re-observed on the return trip.
+sim5
+
+%
+% Deliverable 5 highlights the impact of loop closures in batch least-
+% squares SLAM. On the outbound trip, the robot accumulates odometry-driven
+% drift much like Deliverable 2. On the return trip, however, it sees the
+% same landmarks again, which adds new constraints that connect later robot
+% poses back to the same fixed landmark states.
+%
+% Those repeated landmark observations reduce accumulated drift and
+% improve the trajectory estimate over the full back-and-forth traversal.
+% Compared with Deliverable 2, the Deliverable 5 mean absolute error curve
+% shows the benefit of re-observing landmarks, especially after the
+% robot turns around and begins revisiting previously seen hallway features.

@@ -1,4 +1,4 @@
-function sim2
+function sim5
 length_hallway = 10;  % m
 sensor_range = 0.5;  % m
 
@@ -9,19 +9,29 @@ stdev_odometry = 0.1; % m/s
 stdev_range = 0.01; % m
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Robot ground-truth trajectory for the hallway traversal
+% Robot ground-truth trajectory for the back-and-forth hallway traversal
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 delta_t = 0.1; % time is discretized with a time-step of 0.1 seconds
-v_robot = 0.1; % robot travels at a constant speed of 0.1 m/s
+v_robot = 0.1; % robot travels toward the end of the hallway at 0.1 m/s
+v_robot_rev = -0.1; % robot returns to the origin at -0.1 m/s
 
-t_terminal = length_hallway / v_robot; % time that we reach the end of hall
+t_terminal = length_hallway / v_robot; % time when the robot first reaches the end of hall
+t_terminal_rev = -length_hallway / v_robot_rev; % time needed to return to the origin
+t_terminal_total = t_terminal + t_terminal_rev;
 
-t_vector = 0:delta_t:t_terminal; % time vector for robot's trajectory
-x_vector = 0:v_robot*delta_t:length_hallway; % true robot position over time
-v_vector = ones(1, length(t_vector)) .* v_robot; % true robot velocity over time
+t_vector = 0:delta_t:t_terminal; % forward-leg time vector
+t_vector_rev = t_terminal+delta_t:delta_t:t_terminal_total; % return-leg time vector
+t_vector_total = [t_vector, t_vector_rev];
 
-num_states = length(x_vector); % number of discrete-time pose states
+x_vector = 0:v_robot*delta_t:length_hallway; % forward-leg ground-truth positions
+x_vector_rev = length_hallway+v_robot_rev*delta_t:v_robot_rev*delta_t:0; % return-leg ground-truth positions
+x_vector_total = [x_vector, x_vector_rev];
+
+v_vector = ones(1, length(t_vector)) .* v_robot; % forward-leg velocity history
+v_vector_rev = ones(1, length(t_vector_rev)) .* v_robot_rev; % return-leg velocity history
+v_vector_total = [v_vector, v_vector_rev];
+
+num_states = length(x_vector_total); % number of discrete-time pose states
 
 % Batch least-squares state:
 %   [x_0, x_1, ..., x_K, l_1, l_2, l_3]^T
@@ -34,15 +44,21 @@ num_states = length(x_vector); % number of discrete-time pose states
 %   l_j - x_k = z_range(k,j)
 % This keeps the landmark measurement model linear in the unknown states.
 %
+% Deliverable 5 extends Deliverable 2 by sending the robot to the end of
+% the hallway and then back to the origin. Re-observing the same landmarks
+% on the return trip creates loop-closure constraints in the batch system.
+%
 % Row 1 is the special initial-condition constraint x_0 = 0.
 
 function measurement = odometryMeasurement(time_step)
+    % Simulate one noisy odometry displacement measurement.
     odo_noise = stdev_odometry * randn();
-    measurement = (v_vector(time_step) + odo_noise) * delta_t;
+    measurement = (v_vector_total(time_step) + odo_noise) * delta_t;
 end
 
 function in_range = inRange(time_step, true_landmark_pose)
-    if abs(true_landmark_pose - x_vector(time_step)) <= sensor_range
+    % Return whether the robot can sense this landmark at the current time-step.
+    if abs(true_landmark_pose - x_vector_total(time_step)) <= sensor_range
         in_range = true;
     else
         in_range = false;
@@ -50,12 +66,13 @@ function in_range = inRange(time_step, true_landmark_pose)
 end
 
 function measurements = sensorMeasurements(time_step)
+    % Simulate signed landmark measurements for all landmarks currently in range.
     measurements = zeros(num_landmarks, 1);
     for landmark = 1:num_landmarks
         true_landmark_pose = landmarks(landmark);
 
         if inRange(time_step, true_landmark_pose)
-            true_robot_pose = x_vector(time_step);
+            true_robot_pose = x_vector_total(time_step);
             range_sensor_noise = stdev_range * randn();
 
             % Signed displacement keeps the batch system linear.
@@ -90,7 +107,7 @@ function A_matrix = AStorageHandling(A_matrix, time_step)
     end
 end
 
-%% Deliverable 2: Batch Least-Squares SLAM with Odometry + Landmark Measurements
+%% Deliverable 5: Batch Least-Squares SLAM with Back-and-Forth Landmark Reobservations
 num_of_trials = 1000;
 
 % Build the matching linear measurement matrix.
@@ -112,7 +129,7 @@ state_abs_error = zeros(num_of_trials, num_states + num_landmarks);
 landmark_estimate_history = zeros(num_of_trials, num_landmarks);
 for trial = 1:num_of_trials
     % Build the measurement vector: initial condition, odometry, then
-    % in-range landmark observations.
+    % in-range landmark observations across the full there-and-back motion.
     num_pose_landmark_states = num_states + num_landmarks * num_states;
     b_vector = zeros(num_pose_landmark_states, 1);
 
@@ -136,7 +153,7 @@ for trial = 1:num_of_trials
     landmark_estimates = state_estimates(num_states + 1:end);
     landmark_estimate_history(trial, :) = landmark_estimates.';
 
-    state_truth = [x_vector(:); landmarks(:)];
+    state_truth = [x_vector_total(:); landmarks(:)];
     state_abs_error(trial, :) = abs(state_estimates - state_truth).';
 
     if mod(trial, 25) == 0 || trial == 1 || trial == num_of_trials
@@ -145,7 +162,6 @@ for trial = 1:num_of_trials
         msg = sprintf('Progress: %d/%d | ETA: %.1f s', trial, num_of_trials, eta);
         waitbar(trial / num_of_trials, h, msg);
     end
-
 end
 
 mean_state_abs_error = mean(state_abs_error, 1);
@@ -154,10 +170,10 @@ mean_pose_abs_error = mean_state_abs_error(1:num_states);
 mean_landmark_abs_error = mean_state_abs_error(num_states + 1:end);
 
 figure;
-plot(t_vector, mean_pose_abs_error, 'LineWidth', 1.2)
+plot(t_vector_total, mean_pose_abs_error, 'LineWidth', 1.2)
 xlabel('Time (s)')
 ylabel('Mean Absolute Robot Position Error (m)')
-title('Deliverable 2: Mean Absolute Robot Position Error (Batch Least-Squares, Odometry + Landmark Sensing)')
+title('Deliverable 5: Mean Absolute Robot Position Error (Batch Least-Squares, Back-and-Forth Loop Closures)')
 ylim([0, 0.35])
 grid on
 

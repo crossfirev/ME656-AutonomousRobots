@@ -165,8 +165,9 @@ plot(t_vector, mean_trial_abs_position_error, 'LineWidth', 1.2)
 hold on
 plot(t_vector, std_position_error, '--', 'LineWidth', 1.2)
 xlabel('Time (s)')
-ylabel('Error / Predicted Standard Deviation (m)')
-title('Odometry-Only Kalman Filter: Mean Absolute Error and Predicted Position Std Dev')
-legend('Mean Absolute Position Error', 'Predicted Position Std Dev', 'Location', 'northwest')
+ylabel('Robot Position Error / Predicted Std Dev (m)')
+title('Deliverable 3: Mean Absolute Robot Position Error and Predicted Position Std Dev (Kalman Filter, Odometry Only)')
+legend('Mean Absolute Robot Position Error', 'Predicted Robot Position Std Dev', 'Location', 'northwest')
+ylim([0, 0.35])
 grid on
 end
