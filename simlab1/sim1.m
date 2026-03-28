@@ -34,6 +34,14 @@ num_states = length(x_vector); % number of discrete-time pose states
 %% Deliverable 1: Batch Least-Squares SLAM with Odometry-Only Measurements
 num_of_trials = 1000;
 
+% Build the matching linear measurement matrix.
+A_matrix = zeros(num_states, num_states);
+A_matrix(1,1) = 1;  % Special initial-condition row: x_0 = 0
+for k = 2:num_states
+    A_matrix(k, k-1) = -1;
+    A_matrix(k, k) = 1;
+end
+
 abs_error = zeros(num_of_trials, num_states);
 for trial = 1:num_of_trials
     % Build the measurement vector with the initial condition and odometry.
@@ -42,14 +50,6 @@ for trial = 1:num_of_trials
     for k = 2:num_states
         meas_noise = stdev_odometry * randn();
         b_vector(k) = (v_vector(k) + meas_noise) * delta_t;
-    end
-
-    % Build the matching linear measurement matrix.
-    A_matrix = zeros(num_states, num_states);
-    A_matrix(1,1) = 1;  % Special initial-condition row: x_0 = 0
-    for k = 2:num_states
-        A_matrix(k, k-1) = -1;
-        A_matrix(k, k) = 1;
     end
 
     % Solve for the full robot trajectory in one batch.
