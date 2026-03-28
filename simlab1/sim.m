@@ -8,6 +8,7 @@
 %   sim1 -> Deliverable 1: odometry-only batch least-squares SLAM
 %   sim2 -> Deliverable 2: batch least-squares SLAM with landmark sensing
 %   sim3 -> Deliverable 3: odometry-only Kalman filter SLAM
+%   sim4 -> Deliverable 4: Kalman filter SLAM with landmark sensing
 %}
 
 % Run Deliverable 1. This script estimates the robot trajectory using only
@@ -53,3 +54,22 @@ sim3
 % many trials. In the odometry-only case, both curves should increase with
 % time, reflecting the fact that motion noise accumulates when there is no
 % external position correction.
+
+% Run Deliverable 4. This script extends the Kalman filter to use both
+% odometry and landmark measurements, and plots mean absolute position
+% error alongside the filter-predicted position standard deviation.
+sim4
+
+%
+% Deliverable 4 shows how landmark observations improve the recursive
+% Kalman filter estimate. Between landmark sightings, the robot still
+% accumulates odometry-driven uncertainty, so both error and predicted
+% standard deviation tend to rise. When a landmark comes into range, the
+% extra measurement constrains the robot position and the relevant
+% uncertainty drops.
+%
+% Compared with Deliverable 3, the Deliverable 4 curves stay
+% noticeably lower overall and show clear corrections around the landmark
+% visibility windows. This highlights the same SLAM benefit seen in
+% Deliverable 2, but now in an incremental filter setting rather than a
+% batch least-squares solve.
