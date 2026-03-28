@@ -156,8 +156,8 @@ mean_landmark_abs_error = mean_state_abs_error(num_states + 1:end);
 figure;
 plot(t_vector, mean_pose_abs_error, 'LineWidth', 1.2)
 xlabel('Time (s)')
-ylabel('Absolute Position Error (m)')
-title('Mean Absolute Position Error Over Time')
+ylabel('Mean Absolute Robot Position Error (m)')
+title('Deliverable 2: Mean Absolute Robot Position Error (Batch Least-Squares, Odometry + Landmark Sensing)')
 grid on
 
 disp(table((1:num_landmarks).', landmarks, mean_landmark_estimates, mean_landmark_abs_error(:), ...

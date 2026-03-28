@@ -64,8 +64,8 @@ mean_state_abs_error = mean(abs_error, 1);
 figure;
 plot(t_vector, mean_state_abs_error, 'LineWidth', 1.8)
 xlabel('Time (s)')
-ylabel('Mean Absolute Error (m)')
-title('Deliverable 1: Odometry-Only Batch Least-Squares Mean Absolute Error')
+ylabel('Mean Absolute Robot Position Error (m)')
+title('Deliverable 1: Mean Absolute Robot Position Error (Batch Least-Squares, Odometry Only)')
 grid on
 
 %{
