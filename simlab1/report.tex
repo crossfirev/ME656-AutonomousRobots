@@ -25,18 +25,18 @@ Student: & Matthew Lepis \\
 This report summarizes the five requested deliverables for SimLab 1. All simulations
 were run with the assignment parameters: a 10 m hallway, a sensing range of 0.5 m,
 landmarks at 2 m, 5 m, and 8 m, a time step of 0.1 s, and a robot speed of 0.1 m/s. For
-every deliverable, the estimator was evaluated over $N=1000$ Monte Carlo trials and
-compared against the known ground-truth trajectory.
+every simulation, the estimator was evaluated over $N=1000$ Monte Carlo trials and
+compared against the known ground truth trajectory.
 
-The least-squares deliverables solve for the full trajectory in batch form, while the
-Kalman filter deliverables estimate the state incrementally over time. In all cases, the
+The least squares approach solves for the full trajectory in batch form, while the
+Kalman filter approach estimates the state incrementally over time. In all cases, the
 reported error metric is the mean absolute robot position error as a function of time.
 
 \section{Deliverable 1: Batch Least Squares with Odometry Only}
-For Deliverable 1, the batch least-squares problem was built using only the initial pose
-constraint and the odometry displacement equations between consecutive robot position
-states. Since no landmark observations are included, the estimate is driven entirely by
-noisy odometry measurements.
+For the first simulation, the batch least squares problem was built using only the initial pose
+constraint and the odometry displacement equations between sequential robot position
+states. In this simulation variant, no landmark observations are included, therefore the estimate
+is driven solely by noisy odometry measurements.
 
 \begin{figure}[H]
 \centering
@@ -44,16 +44,16 @@ noisy odometry measurements.
 \caption{Deliverable 1: Mean absolute robot position error for batch least squares with odometry only.}
 \end{figure}
 
-The mean absolute error grows with time because the robot never receives an external
+The mean absolute error grows with time because the robot never receives external
 positional correction. Each noisy odometry measurement contributes a small amount of
-drift, and the accumulated effect becomes larger as the robot moves farther down the
+drift, and the accumulated error becomes larger as the robot moves farther down the
 hallway.
 
 \section{Deliverable 2: Batch Least Squares with Odometry and Landmark Sensing}
-For Deliverable 2, the batch least-squares formulation was extended to include signed
-landmark range measurements of the form $l_j - x_k$. This keeps the measurement model
-linear while allowing the batch solve to estimate both the robot trajectory and the
-three landmark positions.
+In the second simulation, the batch least squares formulation was extended to include signed
+landmark range measurements of the form $l_j - x_k$ (landmark [j] position minus robot position
+state [k]). This keeps the measurement model linear while allowing the batch solve to 
+estimate both the robot trajectory and the three landmark positions.
 
 \begin{figure}[H]
 \centering
@@ -61,20 +61,21 @@ three landmark positions.
 \caption{Deliverable 2: Mean absolute robot position error for batch least squares with odometry and landmark sensing.}
 \end{figure}
 
-The robot's observation of landmarks reduces the growth of error. When landmarks are
-observed, the batch system gains additional constraints that tie the robot's pose states
-to fixed features in the hallway. This limits the amount of odometry drift that can
-accumulate and keeps the mean absolute error lower than in the odometry-only case.
+The introduction of the robot's observation of landmarks reduces the growth of mean error.
+When landmarks are observed, the batch system gains additional constraints that tie the robot's 
+pose states to fixed features in the hallway. This limits the amount of odometry drift that can
+accumulate and keeps the mean absolute error lower than in the odometry-only case. Between the odometry-only
+case and odometry + landmark case, this case had a ~19\% decrease in peak mean position error.
 
 \section{Deliverable 3: Kalman Filter with Odometry Only}
-For Deliverable 3, a linear discrete-time Kalman filter was implemented with state
+In simulation three, a linear discrete-time Kalman filter was implemented with state
 vector
 \[
 \hat{x}_k = [\hat{\dot{x}}_k\; \hat{x}_k\; \hat{l}_{1,k}\; \hat{l}_{2,k}\; \hat{l}_{3,k}]^T.
 \]
 The filter uses odometry as a direct noisy measurement of the robot velocity state and
 propagates uncertainty through the covariance matrix $P_k$. The process noise covariance
-was chosen according to the assignment, with only $Q(1,1)$ nonzero.
+was chosen according to the assignment, with only $Q(1,1)$ nonzero ($10^{-8}$).
 
 \begin{figure}[H]
 \centering
@@ -82,17 +83,19 @@ was chosen according to the assignment, with only $Q(1,1)$ nonzero.
 \caption{Deliverable 3: Mean absolute robot position error and predicted position standard deviation for the odometry-only Kalman filter.}
 \end{figure}
 
-Compared with Deliverable 1, the odometry-only Kalman filter shows the same overall
-behavior: error grows over time because the estimator relies only on noisy motion
-information and receives no landmark-based correction. The main additional benefit of
-the Kalman filter is that it also predicts its own uncertainty through $P_k$. In the
-plot, the covariance-based position standard deviation increases with time in a manner
+Compared with the first simulation (Least Squares Error - Odometry Only), the
+odometry-only Kalman filter shows the same overall behavior: error grows over
+time because the estimator relies only on noisy motion information and receives
+no landmark-based correction - nothing to ground the robot back into the space
+it is traversing. The main additional benefit of the Kalman filter
+is that it also predicts its own uncertainty through $P_k$. In the plot, the
+covariance-based position standard deviation increases with time in a manner 
 that is consistent with the rising empirical error.
 
 \section{Deliverable 4: Kalman Filter with Odometry and Landmark Sensing}
-For Deliverable 4, the Kalman filter was extended to use both odometry and landmark
+For simulation four, the Kalman filter was extended to use both odometry and landmark
 measurements. The measurement matrix $H_k$ and noise covariance $R_k$ were allowed to
-change with time depending on which landmarks were within sensor range at each time
+change dimension with time depending on which landmarks were within sensor range at each time
 step.
 
 \begin{figure}[H]
@@ -103,26 +106,25 @@ step.
 
 The robot's observation of landmarks clearly reduces the growth of error. Between
 landmark sightings, the filter behaves similarly to the odometry-only case and
-uncertainty gradually increases. When a landmark comes into range, the extra measurement
-constrains the robot position and the predicted standard deviation drops. The empirical
-mean absolute error also decreases or grows more slowly in those regions.
+uncertainty gradually increases. This odometry-only-like behavior is most clear
+before it sees a single landmark. When a landmark actually comes into range, the
+extra measurement constrains the robot position and the predicted standard deviation
+drops. The empirical mean absolute error also decreases or grows more slowly in those regions.
 
 In the results obtained here, the Kalman filter also outperforms the corresponding batch
-least-squares result. Comparing Deliverable 4 with Deliverable 2, the landmark-aware
+least squares result. Comparing simulation four with simulation two, the landmark-aware
 Kalman filter maintains a substantially lower error level over the hallway traversal,
 making it the strongest one-way estimator in these simulations.
 
-This result differs from least squares because the Kalman filter is incremental, while
-batch least squares solves for the entire trajectory at once. In batch least squares,
-all measurements over the whole run are used simultaneously, so later measurements can
-influence earlier estimated poses. In contrast, the Kalman filter only uses the
-information available up to the current time step and does not retrospectively smooth
-the entire trajectory. In spite of that, the Kalman filter produced the lower error in
-these runs, while also providing a covariance-based uncertainty estimate that the
-least-squares plots do not directly provide.
+Unlike the Kalman filter, which only uses the information available up to the current time step,
+the batch least squares formulations with landmark sensing solve for the full trajectory and
+landmark states simultaneously, so measurements from later times can influence earlier pose
+estimates through the global solution. In spite of that, the Kalman filter produced
+the lower error in these runs, while also providing a covariance-based uncertainty estimate
+that the least squares plots do not directly provide.
 
 \section{Deliverable 5: Batch Least Squares with Back-and-Forth Loop Closures}
-For Deliverable 5, the batch least-squares formulation from Deliverable 2 was extended
+For simulation five, the batch least squares formulation from simulation two was extended
 so the robot traveled to the end of the hallway and then returned to the origin at
 $-0.1$ m/s. This doubles the traversal duration and causes the robot to re-observe the
 same landmarks on the return trip.
@@ -133,7 +135,7 @@ same landmarks on the return trip.
 \caption{Deliverable 5: Mean absolute robot position error for batch least squares with back-and-forth landmark re-observations.}
 \end{figure}
 
-Yes, the re-observation of landmarks has a meaningful impact on the robot's ability to
+The re-observation of landmarks does have a meaningful impact on the robot's ability to
 curb the growth of error. These repeated landmark observations act as loop-closure
 constraints: later robot poses are connected back to the same fixed landmark states
 observed earlier in the run. As a result, accumulated drift is reduced on the return
@@ -141,26 +143,26 @@ trip, and the full back-and-forth trajectory estimate is better constrained than
 would be without those repeated observations.
 
 \section{Conclusion}
-Across all five deliverables, the main pattern is consistent: odometry alone leads to
+Across all five simulations, the main pattern is consistent: odometry alone leads to
 steadily increasing localization error, while landmark observations reduce drift by
-anchoring the robot to fixed features in the hallway. In the results obtained for this
-assignment, the Kalman filter outperformed the batch least-squares approach overall,
-with the landmark-aware Kalman filter in Deliverable 4 producing the lowest sustained
-error among the one-way hallway traversals.
+anchoring the robot to fixed features in the hallway. In the results obtained during
+these simulations, the Kalman filter outperformed the batch least squares approach
+overall, with the landmark-aware Kalman filter in simulation four producing the lowest
+sustained error among the one-way hallway traversals.
 
-The back-and-forth batch least-squares case in Deliverable 5 still demonstrates an
+The back-and-forth batch least squares case in simulation five still demonstrates an
 important SLAM effect: repeated landmark observations on the return trip help reduce
 accumulated drift through loop-closure-style constraints. Even so, based on the plots
 generated here, the Kalman filter produced the best overall localization performance in
 this project while also providing an explicit covariance-based uncertainty estimate.
 
 \section{Future Work}
-If this simulation were extended beyond the assignment requirements, several next steps
+If this work were extended beyond the guiding requirements, several next steps
 would be valuable. First, implementing a return run for the Kalman filter would make it
 possible to compare a back-and-forth recursive estimator directly against Deliverable 5
 and study whether loop-closure-like repeated observations provide similar benefits in
-the incremental setting. Second, the batch least-squares implementations in Deliverables
-1, 2, and 5 could be refactored for readability, since the Kalman filter implementations
+the incremental setting. Second, the batch least squares implementations in simulation
+one, two, and five could be refactored for readability, since the Kalman filter implementations
 developed later in the assignment are more modular and easier to interpret at a glance.
 
 Additional simulation studies would also help characterize estimator behavior more
@@ -179,14 +181,14 @@ The MATLAB source associated with this report is organized as follows:
 \begin{itemize}[leftmargin=1.5em]
     \item \texttt{simlab1/sim.m}: driver script that runs all five deliverables and
     records summary notes
-    \item \texttt{simlab1/sim1.m}: Deliverable 1 batch least-squares implementation
-    \item \texttt{simlab1/sim2.m}: Deliverable 2 batch least-squares implementation
+    \item \texttt{simlab1/sim1.m}: Deliverable 1 batch least squares implementation
+    \item \texttt{simlab1/sim2.m}: Deliverable 2 batch least squares implementation
     with landmark sensing
     \item \texttt{simlab1/sim3.m}: Deliverable 3 odometry-only Kalman filter
     implementation
     \item \texttt{simlab1/sim4.m}: Deliverable 4 Kalman filter implementation with
     landmark sensing
-    \item \texttt{simlab1/sim5.m}: Deliverable 5 back-and-forth batch least-squares
+    \item \texttt{simlab1/sim5.m}: Deliverable 5 back-and-forth batch least squares
     implementation
     \item \texttt{simlab1/problem\_setup\_orig.m}: provided starter setup file
 \end{itemize}
@@ -195,7 +197,7 @@ The MATLAB source associated with this report is organized as follows:
 Generative AI was used as a supplementary tool to help interpret the assignment prompt
 and assist with editing portions of this report. The MATLAB implementations, simulation
 runs, figure generation, and final interpretation of the results were produced,
-verified, and submitted by the student.
+verified, and submitted by me, Matthew Lepis.
 
 \end{document}
 
