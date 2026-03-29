@@ -94,6 +94,11 @@ Across all five deliverables, the main pattern is consistent: odometry alone lea
 
 The back-and-forth batch least-squares case in Deliverable 5 still demonstrates an important SLAM effect: repeated landmark observations on the return trip help reduce accumulated drift through loop-closure-style constraints. Even so, based on the plots generated here, the Kalman filter produced the best overall localization performance in this project while also providing an explicit covariance-based uncertainty estimate.
 
+\section{Future Work}
+If this simulation were extended beyond the assignment requirements, several next steps would be valuable. First, implementing a return run for the Kalman filter would make it possible to compare a back-and-forth recursive estimator directly against Deliverable 5 and study whether loop-closure-like repeated observations provide similar benefits in the incremental setting. Second, the batch least-squares implementations in Deliverables 1, 2, and 5 could be refactored for readability, since the Kalman filter implementations developed later in the assignment are more modular and easier to interpret at a glance.
+
+Additional simulation studies would also help characterize estimator behavior more deeply. Varying the number and placement of landmarks would show how map feature density affects localization accuracy. Adjusting robot properties such as its speed and the measurement update interval would also be useful, since changing the traversal speed or the time-step would directly affect how quickly error accumulates and how often each estimator receives information. Plotting the estimated state against the true state for each variation would make the trajectory differences more visually interpretable than error-only plots. Finally, extending the run time of each simulation would help evaluate long-horizon error resilience and reveal how each method behaves when drift has more time to accumulate.
+
 \section{Included MATLAB Files}
 The MATLAB source associated with this report is organized as follows:
 \begin{itemize}[leftmargin=1.5em]
@@ -105,5 +110,8 @@ The MATLAB source associated with this report is organized as follows:
     \item \texttt{simlab1/sim5.m}: Deliverable 5 back-and-forth batch least-squares implementation
     \item \texttt{simlab1/problem\_setup\_orig.m}: provided starter setup file
 \end{itemize}
+
+\section*{Disclosure of Assistance}
+Generative AI was used as a supplementary tool to help interpret the assignment prompt and assist with editing portions of this report. The MATLAB implementations, simulation runs, figure generation, and final interpretation of the results were produced, verified, and submitted by the student.
 
 \end{document}
