@@ -75,7 +75,7 @@ function [status, x_new, u_new] = new_state(x, x_near)
     end
 end
 
-function status = extend(tree)
+function status = extend(tree, edge_color)
     status = 0;
     while status ~= 1 
         [sample_x, sample_y] = random_state();
@@ -89,7 +89,7 @@ function status = extend(tree)
             tree.add_edge(x_near, x_new, u_new);
             plot([x_near.state(1), x_new.state(1)], ...
                  [x_near.state(2), x_new.state(2)], ...
-                 'Color', [0.35 0.35 0.35], 'LineWidth', 0.5);
+                 'Color', edge_color, 'LineWidth', 0.5);
             drawnow limitrate;
             if collision_check_point(x_new.state(1), x_new.state(2), goal_region) == 1
                 status = 1;  % Reached Goal
@@ -102,15 +102,16 @@ function status = extend(tree)
     end
 end
 
-function tree = build_RRT(x_pos_init, y_pos_init)
+function tree = build_RRT(x_pos_init, y_pos_init, edge_color)
     tree = Tree(x_pos_init, y_pos_init);
-    extend(tree)
+    extend(tree, edge_color)
 end
 
 
 RRT_trials = {};
+RRT_colors = parula(num_RRT_trials);
 state_state = num2cell(start_state);
 for trial = 1 : num_RRT_trials
-    RRT_trials{trial} = build_RRT(state_state{:});
+    RRT_trials{trial} = build_RRT(state_state{:}, RRT_colors(trial, :));
 end
 end
