@@ -15,12 +15,9 @@ box on;
 start_state = [ 5 50];
 plot(start_state(1),start_state(2),'.r','MarkerSize',20);
 
-% Define and plot the goal region for the planning problem
+% Define the default goal region for the planning problem.
 %              x1 y1  x2  y2   x3  y3  x4  y4
 goal_region = [90  0 100   0  100 100  90 100];
-goal_x = [goal_region(1) goal_region(3) goal_region(5) goal_region(7)];
-goal_y = [goal_region(2) goal_region(4) goal_region(6) goal_region(8)];
-patch(goal_x,goal_y,'green');
 
 % Define the locations of the obstacles.
 %             x1 y1 x2 y2 x3 y3 x4 y4
@@ -47,9 +44,26 @@ switch obstacle_layout
                       48 65 58 65 58 68 48 68;
                       63 32 73 32 73 35 63 35;
                       78 60 88 60 88 63 78 63 ];
+    case 'spiral'
+        goal_region = [40 52 54 52 54 54 40 54];
+        obstacles = [ 18 18 85 18 85 21 18 21;
+                      82 18 85 18 85 82 82 82;
+                      18 79 85 79 85 82 18 82;
+                      18 34 21 34 21 82 18 82;
+                      18 34 72 34 72 37 18 37;
+                      69 34 72 34 72 68 69 68;
+                      34 65 72 65 72 68 34 68;
+                      34 48 37 48 37 68 34 68;
+                      34 48 58 48 58 51 34 51;
+                      55 48 58 48 58 58 55 58;
+                      46 55 58 55 58 58 46 58 ];
     otherwise
         error('Unknown obstacle layout "%s". Use "original", "maze", or "spiral".', obstacle_layout);
 end
+
+goal_x = [goal_region(1) goal_region(3) goal_region(5) goal_region(7)];
+goal_y = [goal_region(2) goal_region(4) goal_region(6) goal_region(8)];
+patch(goal_x,goal_y,'green');
 
 num_obstacles = size(obstacles,1);
 

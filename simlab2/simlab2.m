@@ -8,7 +8,7 @@ function simlab2()
 % TODO: Add description for this file before submission.
 %
 
-[start_state, goal_region, obstacles] = generate_obstacles();
+[start_state, goal_region, obstacles] = generate_obstacles("original");
 
 %
 % Robot Constraints
@@ -31,6 +31,8 @@ growth_dist = 2; % meters
 num_RRT_trials = 100;
 x_bounds = [0, 100];
 y_bounds = [0, 100];
+plot_RRT_runs = true;
+plot_RRT_modulo = 25;
 
 function [x_pos_rand, y_pos_rand] = random_state()
     x_pos_rand = x_bounds(1) + (x_bounds(2) - x_bounds(1)) * rand();
@@ -75,7 +77,7 @@ function [status, x_new, u_new] = new_state(x, x_near)
     end
 end
 
-function status = extend(tree, edge_color)
+function status = extend(tree, edge_color, plot_this_run)
     status = 0;
     while status ~= 1 
         [sample_x, sample_y] = random_state();
@@ -87,10 +89,12 @@ function status = extend(tree, edge_color)
         if success
             tree.add_vertex(x_new);
             tree.add_edge(x_near, x_new, u_new);
-            plot([x_near.state(1), x_new.state(1)], ...
-                 [x_near.state(2), x_new.state(2)], ...
-                 'Color', edge_color, 'LineWidth', 0.5);
-            drawnow limitrate;
+            if plot_this_run
+                plot([x_near.state(1), x_new.state(1)], ...
+                     [x_near.state(2), x_new.state(2)], ...
+                     'Color', edge_color, 'LineWidth', 0.5);
+                drawnow limitrate;
+            end
             if collision_check_point(x_new.state(1), x_new.state(2), goal_region) == 1
                 status = 1;  % Reached Goal
             else  % x_new == x
@@ -102,9 +106,9 @@ function status = extend(tree, edge_color)
     end
 end
 
-function tree = build_RRT(x_pos_init, y_pos_init, edge_color)
+function tree = build_RRT(x_pos_init, y_pos_init, edge_color, plot_this_run)
     tree = Tree(x_pos_init, y_pos_init);
-    extend(tree, edge_color)
+    extend(tree, edge_color, plot_this_run);
 end
 
 function update_progress_bar(completed_runs, total_runs)
@@ -139,7 +143,8 @@ for trial = 1 : num_RRT_trials
     update_progress_bar(trial - 1, num_RRT_trials);
     title(sprintf('RRT run %d of %d', trial, num_RRT_trials));
     drawnow;
-    RRT_trials{trial} = build_RRT(state_state{:}, RRT_colors(trial, :));
+    plot_this_run = plot_RRT_runs && mod(trial, plot_RRT_modulo) == 0;
+    RRT_trials{trial} = build_RRT(state_state{:}, RRT_colors(trial, :), plot_this_run);
     update_progress_bar(trial, num_RRT_trials);
 end
 title(sprintf('RRT runs complete: %d of %d', num_RRT_trials, num_RRT_trials));
