@@ -107,14 +107,40 @@ function tree = build_RRT(x_pos_init, y_pos_init, edge_color)
     extend(tree, edge_color)
 end
 
+function update_progress_bar(completed_runs, total_runs)
+    persistent progress_background progress_fill progress_label
+    
+    progress_bar_position = [0.20 0.03 0.60 0.025];
+    progress_label_position = [0.20 0.055 0.60 0.025];
+    progress_fraction = completed_runs / total_runs;
+    
+    if isempty(progress_background) || ~isvalid(progress_background)
+        progress_background = annotation('rectangle', progress_bar_position, ...
+            'FaceColor', [0.90 0.90 0.90], 'EdgeColor', [0.25 0.25 0.25]);
+        progress_fill = annotation('rectangle', ...
+            [progress_bar_position(1), progress_bar_position(2), 0, progress_bar_position(4)], ...
+            'FaceColor', [0.10 0.45 0.80], 'EdgeColor', 'none');
+        progress_label = annotation('textbox', progress_label_position, ...
+            'String', '', 'EdgeColor', 'none', ...
+            'HorizontalAlignment', 'center', 'FontSize', 9);
+    end
+    
+    progress_fill.Position = [progress_bar_position(1), progress_bar_position(2), ...
+        progress_bar_position(3) * progress_fraction, progress_bar_position(4)];
+    progress_label.String = sprintf('%d / %d RRT runs complete', completed_runs, total_runs);
+    drawnow;
+end
+
 
 RRT_trials = {};
 RRT_colors = parula(num_RRT_trials);
 state_state = num2cell(start_state);
 for trial = 1 : num_RRT_trials
+    update_progress_bar(trial - 1, num_RRT_trials);
     title(sprintf('RRT run %d of %d', trial, num_RRT_trials));
     drawnow;
     RRT_trials{trial} = build_RRT(state_state{:}, RRT_colors(trial, :));
+    update_progress_bar(trial, num_RRT_trials);
 end
 title(sprintf('RRT runs complete: %d of %d', num_RRT_trials, num_RRT_trials));
 end
