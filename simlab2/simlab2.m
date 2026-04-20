@@ -112,6 +112,9 @@ RRT_trials = {};
 RRT_colors = parula(num_RRT_trials);
 state_state = num2cell(start_state);
 for trial = 1 : num_RRT_trials
+    title(sprintf('RRT run %d of %d', trial, num_RRT_trials));
+    drawnow;
     RRT_trials{trial} = build_RRT(state_state{:}, RRT_colors(trial, :));
 end
+title(sprintf('RRT runs complete: %d of %d', num_RRT_trials, num_RRT_trials));
 end
