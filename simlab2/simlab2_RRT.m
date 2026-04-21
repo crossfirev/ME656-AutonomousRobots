@@ -1,0 +1,109 @@
+function RRT_trials = simlab2_RRT(cfg)
+%% SimLab 2 - RRT Trail runner
+% Author: Matthew Lepis
+% Date: April 19, 2026
+%
+% TODO: Add description for this file before submission.
+%
+
+function tree = build_RRT(x_pos_init, y_pos_init, edge_color, plot_this_run, cfg)
+    tree = Tree(x_pos_init, y_pos_init, cfg);
+    tree.extend(edge_color, plot_this_run);
+end
+
+function [path, path_length] = reconstruct_goal_path(tree)
+    vertex = tree.vertices(end);  % Goal Vertex
+
+    path = [TreeVertex.empty(0, 1);];
+    path_length = 0;
+
+    while vertex ~= tree.vertices(1)
+        path(end+1) = vertex;
+        path_length = path_length + vertex.cost;
+        vertex = tree.vertices(vertex.parent.idx);
+    end
+    path(end+1) = vertex;
+    path = flip(path);
+
+end
+
+function plot_reconstructed_path(path, path_length, path_color)
+    path_line_width = 3.5;
+    label_offset = [0.75, 0.75];
+
+    if numel(path) < 2
+        return;
+    end
+
+    for segment_idx = 1 : numel(path) - 1
+        plot([path(segment_idx).state(1), path(segment_idx + 1).state(1)], ...
+            [path(segment_idx).state(2), path(segment_idx + 1).state(2)], ...
+            'Color', path_color, 'LineWidth', path_line_width);
+    end
+
+    goal_state = path(end).state;
+    text(goal_state(1) + label_offset(1), goal_state(2) + label_offset(2), ...
+        sprintf('L = %.2f m', path_length), ...
+        'Color', path_color, 'FontSize', 11, 'FontWeight', 'bold', ...
+        'HorizontalAlignment', 'left', 'VerticalAlignment', 'bottom');
+
+    drawnow limitrate;
+end
+
+function update_progress_bar(completed_runs, total_runs)
+    persistent progress_background progress_fill progress_label
+    
+    progress_bar_position = [0.20 0.03 0.60 0.025];
+    progress_label_position = [0.20 0.055 0.60 0.025];
+    progress_fraction = completed_runs / total_runs;
+    
+    if isempty(progress_background) || ~isvalid(progress_background)
+        progress_background = annotation('rectangle', progress_bar_position, ...
+            'FaceColor', [0.90 0.90 0.90], 'EdgeColor', [0.25 0.25 0.25]);
+        progress_fill = annotation('rectangle', ...
+            [progress_bar_position(1), progress_bar_position(2), 0, progress_bar_position(4)], ...
+            'FaceColor', [0.10 0.45 0.80], 'EdgeColor', 'none');
+        progress_label = annotation('textbox', progress_label_position, ...
+            'String', '', 'EdgeColor', 'none', ...
+            'HorizontalAlignment', 'center', 'FontSize', 9);
+    end
+    
+    progress_fill.Position = [progress_bar_position(1), progress_bar_position(2), ...
+        progress_bar_position(3) * progress_fraction, progress_bar_position(4)];
+    progress_label.String = sprintf('%d / %d RRT runs complete', completed_runs, total_runs);
+    drawnow;
+end
+
+RRT_trials = {};
+RRT_colors = parula(cfg.num_RRT_trials);
+state_state = num2cell(cfg.start_state);
+for trial = 1 : cfg.num_RRT_trials
+    %% PLOTTING helpers
+    %
+    update_progress_bar(trial - 1, cfg.num_RRT_trials);
+    title(sprintf('RRT run %d of %d', trial, cfg.num_RRT_trials));
+    drawnow;
+    plot_this_run = cfg.plot_RRT_runs && mod(trial, cfg.plot_RRT_modulo) == 0;
+    
+    %% RRT
+    %
+    tree = build_RRT(state_state{:}, RRT_colors(trial, :), plot_this_run, cfg);
+    [path, path_length] = reconstruct_goal_path(tree);
+
+    if plot_this_run
+        plot_reconstructed_path(path, path_length, RRT_colors(trial, :));
+    end
+
+    trial_data.tree = tree;
+    trial_data.path = path;
+    trial_data.path_length = path_length;
+
+    RRT_trials{trial} = trial_data;
+
+
+    %% PLOTTING helpers 
+    %
+    update_progress_bar(trial, cfg.num_RRT_trials);
+end
+title(sprintf('RRT runs complete: %d of %d', cfg.num_RRT_trials, cfg.num_RRT_trials));
+end
