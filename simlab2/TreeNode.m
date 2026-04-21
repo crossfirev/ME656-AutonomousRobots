@@ -1,4 +1,4 @@
-classdef TreeVertex < handle
+classdef TreeNode < handle
     properties
         state
         idx
@@ -9,20 +9,20 @@ classdef TreeVertex < handle
     end
 
     methods
-        function obj = TreeVertex(x, y)
+        function obj = TreeNode(x, y)
             obj.state = [x, y];
             obj.idx = [];
             obj.parent = [];
-            obj.children = TreeVertex.empty(0, 1);
+            obj.children = TreeNode.empty(0, 1);
             obj.cost = 0;
             obj.action = [];
         end
 
-        function set_edge(obj, parent_vertex, action)
-            obj.parent = parent_vertex;
+        function set_edge(obj, parent_node, action)
+            obj.parent = parent_node;
             obj.action = action;
-            obj.cost = norm(parent_vertex.state - obj.state);
-            parent_vertex.children(end+1, :) = obj;
+            obj.cost = norm(parent_node.state - obj.state);
+            parent_node.children(end+1, :) = obj;
         end
 
         function status = is_root(obj)

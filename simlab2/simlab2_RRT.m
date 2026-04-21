@@ -12,17 +12,17 @@ function tree = build_RRT(x_pos_init, y_pos_init, edge_color, plot_this_run, cfg
 end
 
 function [path, path_length] = reconstruct_goal_path(tree)
-    vertex = tree.vertices(end);  % Goal Vertex
+    node = tree.vertices(end);  % Goal Node
 
-    path = [TreeVertex.empty(0, 1);];
+    path = [TreeNode.empty(0, 1);];
     path_length = 0;
 
-    while vertex ~= tree.vertices(1)
-        path(end+1) = vertex;
-        path_length = path_length + vertex.cost;
-        vertex = tree.vertices(vertex.parent.idx);
+    while node ~= tree.vertices(1)
+        path(end+1) = node;
+        path_length = path_length + node.cost;
+        node = tree.vertices(node.parent.idx);
     end
-    path(end+1) = vertex;
+    path(end+1) = node;
     path = flip(path);
 
 end
@@ -43,7 +43,7 @@ function plot_reconstructed_path(path, path_length, path_color)
 
     goal_state = path(end).state;
     text(goal_state(1) + label_offset(1), goal_state(2) + label_offset(2), ...
-        sprintf('L = %.0f m', path_length), ...
+        sprintf('L = %.2f m', path_length), ...
         'Color', path_color, 'FontSize', 11, 'FontWeight', 'bold', ...
         'HorizontalAlignment', 'left', 'VerticalAlignment', 'bottom');
 
