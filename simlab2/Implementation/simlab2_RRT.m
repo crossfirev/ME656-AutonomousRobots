@@ -94,7 +94,7 @@ for trial = 1 : cfg.num_RRT_trials
         plot_reconstructed_path(path, path_length, RRT_colors(trial, :));
     end
 
-    trial_data.tree = tree;
+    % trial_data.tree = tree;
     trial_data.path = path;
     trial_data.path_length = path_length;
 

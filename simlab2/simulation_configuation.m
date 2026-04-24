@@ -19,11 +19,11 @@ growth_dist = 2; % meters
 % Simulation Constraints
 %
 
-num_RRT_trials = 100;
+num_RRT_trials = 1000;
 x_bounds = [0, 100];
 y_bounds = [0, 100];
 plot_RRT_runs = true;
-plot_RRT_modulo = 25;
+plot_RRT_modulo = 500;
 
 %%
 cfg.start_state = start_state;
