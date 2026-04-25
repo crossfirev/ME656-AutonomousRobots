@@ -29,7 +29,8 @@ num_RRT_trials = 100;
 x_bounds = [0, 100];
 y_bounds = [0, 100];
 plot_RRT_runs = true;
-plot_RRT_modulo = 100;
+plot_RRT_runs_w_ellipses = false;
+plot_RRT_modulo = 33;
 
 %%
 cfg.start_state = start_state;
@@ -46,6 +47,7 @@ cfg.num_RRT_trials = num_RRT_trials;
 cfg.x_bounds = x_bounds;
 cfg.y_bounds = y_bounds;
 cfg.plot_RRT_runs = plot_RRT_runs;
+cfg.plot_RRT_runs_w_ellipses = plot_RRT_runs_w_ellipses; 
 cfg.plot_RRT_modulo = plot_RRT_modulo;
 %
 sim_config = cfg;

@@ -1,4 +1,4 @@
-%% Establish configuration constants & constraints
+%% Establish configuration constants & constraint
 cfg = simulation_configuation();
 
 %% Run 'Rapidly expanding Random Tree' (RRT) trials to find many valid paths to goal. 
@@ -12,4 +12,4 @@ shortest_path = find_shortest_path(RRT_trials);
 % `shortest_path.path_length` - holds the length of the shortest path
 
 %% Propagate the Posterior Error Covariance for the full shortest path
-KF_populated_path = propagate_KF_path(shortest_path, obstacles, cfg);
+KF_populated_path = propagate_KF_path(shortest_path, cfg);

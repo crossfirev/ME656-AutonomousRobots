@@ -92,6 +92,10 @@ for trial = 1 : cfg.num_RRT_trials
 
     if plot_this_run
         plot_reconstructed_path(path, path_length, RRT_colors(trial, :));
+        if cfg.plot_RRT_runs_w_ellipses
+            temp.path = path;
+            propagate_KF_path(temp, cfg);
+        end
     end
 
     % trial_data.tree = tree;

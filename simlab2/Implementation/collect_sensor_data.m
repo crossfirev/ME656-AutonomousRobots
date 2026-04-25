@@ -1,14 +1,15 @@
-function path = collect_sensor_data(path, obstacles, cfg)
+function path = collect_sensor_data(path, cfg)
     nodes = path.path;
-    for k = 1 : nodes
+    for k = 1 : length(nodes)
         node = nodes(k);
         % Collecting state_vector data
-        [x_observable, y_observable] = obstacle_in_reach(node, obstacles, cfg);
+        [x_observable, y_observable] = obstacle_in_reach(node, cfg);
         node.x_observability = x_observable;
         node.y_observability = y_observable;
     end
 end
-function [x_observable, y_observable] = obstacle_in_reach(node, obstacles, cfg)
+function [x_observable, y_observable] = obstacle_in_reach(node, cfg)
+    obstacles = cfg.obstacles;
     x_observable = 0;
     y_observable = 0;
 
