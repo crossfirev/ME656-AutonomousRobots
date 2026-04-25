@@ -4,13 +4,20 @@ function KF_populated_path = propagate_KF_path(path, obstacles, cfg)
 
     %% Collect KF variables for the full path
     KF_populated_path = compile_KF_vars(sensor_rich_path, cfg);
+    plot_covariance_evolution(KF_populated_path)
 end
 function path = compile_KF_vars(path, cfg)
     function node = populate_state_vectors(node)
         x = node.state(1);
         y = node.state(2);
-        x_vel = node.action(1);
-        y_vel = node.action(2);
+
+        if isempty(node.action)
+            x_vel = 0;
+            y_vel = 0;
+        else
+            x_vel = node.action(1);
+            y_vel = node.action(2);
+        end
 
         node.x = [
             x;
