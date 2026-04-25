@@ -1,5 +1,5 @@
-function sim_config = simulation_configuation()
-[start_state, goal_region, obstacles] = generate_obstacles("original");
+function sim_config = simulation_configuation(obstacle_type, num_RRT_trials, plot_RRT_modulo)
+[start_state, goal_region, obstacles] = generate_obstacles(obstacle_type);
 
 %
 % Robot Constraints
@@ -24,13 +24,10 @@ time_step = 1; % second
 %
 % Simulation Constraints
 %
-
-num_RRT_trials = 100;
 x_bounds = [0, 100];
 y_bounds = [0, 100];
 plot_RRT_runs = true;
 plot_RRT_runs_w_ellipses = false;
-plot_RRT_modulo = 33;
 
 %%
 cfg.start_state = start_state;

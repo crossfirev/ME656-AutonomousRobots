@@ -1,5 +1,8 @@
 %% Establish configuration constants & constraint
-cfg = simulation_configuation();
+% "original"
+% "maze"
+% "spiral"
+cfg = simulation_configuation("original", 100, 33);
 
 %% Run 'Rapidly expanding Random Tree' (RRT) trials to find many valid paths to goal. 
 RRT_trials = simlab2_RRT(cfg);

@@ -1,12 +1,44 @@
 function KF_populated_path = propagate_KF_path(path, cfg)
+    %% Copy selected RRT nodes into KF-specific path structs (Performance Step, pruning dead data)
+    data_pruned_path = initialize_KF_path(path);
+
     %% Collect measurement data for full path
-    sensor_rich_path = collect_sensor_data(path, cfg);
+    sensor_rich_path = collect_sensor_data(data_pruned_path, cfg);
 
     %% Collect KF variables for the full path
     KF_populated_path = compile_KF_vars(sensor_rich_path, cfg);
 
     %% Plot the error covariance evolution over the shortest path
     plot_covariance_evolution(KF_populated_path.path);
+end
+
+function kf_path = initialize_KF_path(path)
+    rrt_nodes = path.path;
+    kf_path = path;
+
+    empty_kf_node = struct( ...
+        'state', [], ...
+        'cost', [], ...
+        'action', [], ...
+        'x_observability', false, ...
+        'y_observability', false, ...
+        'x', [], ...
+        'A', [], ...
+        'Q', [], ...
+        'H', [], ...
+        'R', [], ...
+        'P_prev', [], ...
+        'P', []);
+
+    kf_nodes = repmat(empty_kf_node, size(rrt_nodes));
+
+    for k = 1 : numel(rrt_nodes)
+        kf_nodes(k).state = rrt_nodes(k).state;
+        kf_nodes(k).cost = rrt_nodes(k).cost;
+        kf_nodes(k).action = rrt_nodes(k).action;
+    end
+
+    kf_path.path = kf_nodes;
 end
 
 function path = compile_KF_vars(path, cfg)

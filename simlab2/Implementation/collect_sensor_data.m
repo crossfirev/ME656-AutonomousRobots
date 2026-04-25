@@ -1,12 +1,12 @@
 function path = collect_sensor_data(path, cfg)
     nodes = path.path;
     for k = 1 : length(nodes)
-        node = nodes(k);
         % Collecting state_vector data
-        [x_observable, y_observable] = obstacle_in_reach(node, cfg);
-        node.x_observability = x_observable;
-        node.y_observability = y_observable;
+        [x_observable, y_observable] = obstacle_in_reach(nodes(k), cfg);
+        nodes(k).x_observability = x_observable;
+        nodes(k).y_observability = y_observable;
     end
+    path.path = nodes;
 end
 function [x_observable, y_observable] = obstacle_in_reach(node, cfg)
     obstacles = cfg.obstacles;

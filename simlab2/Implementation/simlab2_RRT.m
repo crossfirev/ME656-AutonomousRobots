@@ -14,17 +14,38 @@ end
 function [path, path_length] = reconstruct_goal_path(tree)
     node = tree.vertices(end);  % Goal Node
 
-    path = [TreeNode.empty(0, 1);];
+    reverse_path = [TreeNode.empty(0, 1);];
     path_length = 0;
 
-    while node ~= tree.vertices(1)
-        path(end+1) = node;
+    while ~node.is_root()
+        reverse_path(end+1, 1) = node;
         path_length = path_length + node.cost;
-        node = tree.vertices(node.parent.idx);
+        node = node.parent;
     end
-    path(end+1) = node;
-    path = flip(path);
+    reverse_path(end+1, 1) = node;
+    path = clone_path_nodes(flip(reverse_path));
 
+end
+
+function path = clone_path_nodes(source_path)
+    % Return lightweight path only nodes instead of handles into the full RRT.
+    % Otherwise the path root's children can retain the entire tree for each
+    % trial.
+    path = [TreeNode.empty(0, 1);];
+
+    for node_idx = 1 : numel(source_path)
+        state = source_path(node_idx).state;
+        path_node = TreeNode(state(1), state(2));
+        path_node.idx = node_idx;
+        path_node.cost = source_path(node_idx).cost;
+        path_node.action = source_path(node_idx).action;
+
+        if node_idx > 1
+            path_node.parent = path(node_idx - 1);
+        end
+
+        path(end+1, 1) = path_node;
+    end
 end
 
 function plot_reconstructed_path(path, path_length, path_color)
@@ -74,7 +95,7 @@ function update_progress_bar(completed_runs, total_runs)
     drawnow;
 end
 
-RRT_trials = {};
+RRT_trials = cell(1, cfg.num_RRT_trials);
 RRT_colors = parula(cfg.num_RRT_trials);
 state_state = num2cell(cfg.start_state);
 for trial = 1 : cfg.num_RRT_trials
@@ -98,7 +119,7 @@ for trial = 1 : cfg.num_RRT_trials
         end
     end
 
-    % trial_data.tree = tree;
+    trial_data = struct();
     trial_data.path = path;
     trial_data.path_length = path_length;
 
