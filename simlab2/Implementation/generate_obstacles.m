@@ -19,10 +19,11 @@ plot(start_state(1),start_state(2),'.r','MarkerSize',20);
 %              x1 y1  x2  y2   x3  y3  x4  y4
 goal_region = [90  0 100   0  100 100  90 100];
 
-% Define the locations of the obstacles.
-%             x1 y1 x2 y2 x3 y3 x4 y4
+
 switch obstacle_layout
     case 'original'
+        % Define the locations of the obstacles.
+        %             x1 y1 x2 y2 x3 y3 x4 y4
         obstacles = [  5 10 15 10 15 20  5 20; % obstacle 1
                       10 40 20 40 20 50 10 50; % obstacle 2
                       20 70 30 70 30 80 20 80; % ...etc...

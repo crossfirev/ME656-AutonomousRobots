@@ -1,11 +1,23 @@
 classdef TreeNode < handle
     properties
+        % RRT properties
         state
         idx
         parent
         children
         cost
         action
+
+        % KF properties
+        x_observability
+        y_observability
+        x
+        A
+        Q
+        H
+        R
+        P_prev
+        P
     end
 
     methods
@@ -16,6 +28,14 @@ classdef TreeNode < handle
             obj.children = TreeNode.empty(0, 1);
             obj.cost = 0;
             obj.action = [];
+
+            obj.x_observability = [];
+            obj.y_observability = [];
+            obj.x = [];     % state_vector
+            obj.A = [];     % state_transition_matrix
+            obj.Q = [];     % process_noise_covariance
+            obj.H = [];     % measurement_matrix
+            obj.R = [];     % measurement_noise_covariance
         end
 
         function set_edge(obj, parent_node, action)

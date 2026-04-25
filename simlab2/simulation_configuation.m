@@ -16,14 +16,20 @@ beam_range = 5;
 growth_dist = 2; % meters
 
 %
+% KF Constraints
+%
+
+time_step = 1; % second
+
+%
 % Simulation Constraints
 %
 
-num_RRT_trials = 1000;
+num_RRT_trials = 100;
 x_bounds = [0, 100];
 y_bounds = [0, 100];
 plot_RRT_runs = true;
-plot_RRT_modulo = 500;
+plot_RRT_modulo = 100;
 
 %%
 cfg.start_state = start_state;
@@ -33,6 +39,8 @@ cfg.obstacles = obstacles;
 cfg.beam_range = beam_range;
 %
 cfg.growth_dist = growth_dist;
+%
+cfg.time_step = time_step;
 %
 cfg.num_RRT_trials = num_RRT_trials;
 cfg.x_bounds = x_bounds;

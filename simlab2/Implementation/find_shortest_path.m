@@ -1,4 +1,4 @@
-function shortest_path = shortest_path(RRT_trials)
+function shortest_path = find_shortest_path(RRT_trials)
     num_trials = numel(RRT_trials);
     if num_trials == 0
         error('shortest_path:NoTrials', 'RRT_trials must contain at least one trial.');
