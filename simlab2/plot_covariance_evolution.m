@@ -1,5 +1,5 @@
 function plot_covariance_evolution(trial)
-    nodes = trial.KF_populated_path.path;
+    nodes = trial.path;
     if isempty(nodes)
         return;
     end

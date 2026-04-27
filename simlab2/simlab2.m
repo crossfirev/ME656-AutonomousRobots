@@ -18,22 +18,35 @@ for k = 1 : numel(RRT_trials)
 end
 
 %% Find minimal terminal uncertainty path
-[minimal_uncertainty, minimal_uncertanty_idx] = min(terminal_uncertainty);
-minimal_trial = RRT_trials{minimal_uncertanty_idx};
+[minimal_uncertainty, minimal_uncertainty_idx] = min(terminal_uncertainty);
+minimal_trial = RRT_trials{minimal_uncertainty_idx};
 KF_populated_minimal_trial = propagate_KF_path(minimal_trial, cfg);
 plot_path(KF_populated_minimal_trial, "min");
 plot_covariance_evolution(KF_populated_minimal_trial);
 
 %% Find maximal terminal uncertainty path
-[maximal_uncertainty, maximal_uncertanty_idx] = max(terminal_uncertainty);
-maximal_trial = RRT_trials{maximal_uncertanty_idx};
+[maximal_uncertainty, maximal_uncertainty_idx] = max(terminal_uncertainty);
+maximal_trial = RRT_trials{maximal_uncertainty_idx};
 KF_populated_maximal_trial = propagate_KF_path(maximal_trial, cfg);
 plot_path(KF_populated_maximal_trial, 'max');
 plot_covariance_evolution(KF_populated_maximal_trial);
 
 %% Find Shortest Path of the trials
-shortest_trial = find_shortest_path(RRT_trials);
+[shortest_trial, shortest_trial_idx] = find_shortest_path(RRT_trials);
 KF_populated_shortest_trial = propagate_KF_path(shortest_trial, cfg);
 plot_path(KF_populated_shortest_trial, 'shortest');
 plot_covariance_evolution(KF_populated_shortest_trial);
 
+%% Add trial-selection summary text box
+selection_summary = {
+    sprintf('Shortest path found on trial %d of %d', shortest_trial_idx, cfg.num_RRT_trials)
+    sprintf('Minimal uncertainty path found on trial %d of %d', minimal_uncertainty_idx, cfg.num_RRT_trials)
+    sprintf('Maximal uncertainty path found on trial %d of %d', maximal_uncertainty_idx, cfg.num_RRT_trials)
+};
+annotation('textbox', [0.16 0.80 0.36 0.11], ...
+    'String', selection_summary, ...
+    'FitBoxToText', 'on', ...
+    'BackgroundColor', [1 1 1], ...
+    'EdgeColor', [0.25 0.25 0.25], ...
+    'FontSize', 10, ...
+    'FontWeight', 'bold');
