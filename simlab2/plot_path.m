@@ -10,6 +10,7 @@
 %   terminal uncertainty.
 
 function plot_path(trial, type)
+    type = lower(char(type));
     path = trial.path;
     path_length = trial.path_length;
     uncertainty = trial.final_uncertainty;
@@ -42,6 +43,18 @@ function plot_path(trial, type)
         case 'shortest'
             text(goal_state(1) + label_offset(1), goal_state(2) + label_offset(2), ...
                 sprintf('Shortest\n  L = %.2f m\n  Uncertainty = %.2f', path_length, uncertainty), ...
+                'Color', path_color, 'FontSize', 11, 'FontWeight', 'bold', ...
+                'HorizontalAlignment', 'left', 'VerticalAlignment', 'top');
+        case 'best'
+            if isfield(trial, 'selection_cost')
+                label = sprintf('Best Tradeoff\n  L = %.2f m\n  Uncertainty = %.2f\n  Cost = %.3f', ...
+                    path_length, uncertainty, trial.selection_cost);
+            else
+                label = sprintf('Best Tradeoff\n  L = %.2f m\n  Uncertainty = %.2f', ...
+                    path_length, uncertainty);
+            end
+            text(goal_state(1) + label_offset(1), goal_state(2) + label_offset(2), ...
+                label, ...
                 'Color', path_color, 'FontSize', 11, 'FontWeight', 'bold', ...
                 'HorizontalAlignment', 'left', 'VerticalAlignment', 'top');
     end

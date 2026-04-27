@@ -40,6 +40,12 @@ y_bounds = [0, 100];
 plot_RRT_runs = false;
 plot_RRT_runs_w_ellipses = false;
 
+%
+% Best path scoring
+%
+best_path_distance_weight = 0.5;
+best_path_uncertainty_weight = 0.5;
+
 %%
 cfg.start_state = start_state;
 cfg.goal_region = goal_region;
@@ -57,6 +63,8 @@ cfg.y_bounds = y_bounds;
 cfg.plot_RRT_runs = plot_RRT_runs;
 cfg.plot_RRT_runs_w_ellipses = plot_RRT_runs_w_ellipses; 
 cfg.plot_RRT_modulo = plot_RRT_modulo;
+cfg.best_path_distance_weight = best_path_distance_weight;
+cfg.best_path_uncertainty_weight = best_path_uncertainty_weight;
 %
 sim_config = cfg;
 end

@@ -7,13 +7,14 @@
 %
 % Description:
 %   Runs the SimLab 2 RRT and Kalman filter workflow, selects the shortest,
-%   minimum-uncertainty, and maximum-uncertainty paths, and plots the results.
+%   minimum-uncertainty, maximum-uncertainty, and best-tradeoff paths, and
+%   plots the results.
 
 %% Establish configuration constants & constraint
 % "original"
 % "maze"
 % "spiral"
-cfg = simulation_configuation("original", 100, 33);
+cfg = simulation_configuation("original", 1000, 33);
 
 %% Run 'Rapidly expanding Random Tree' (RRT) trials to find many valid paths to goal. 
 RRT_trials = RRT(cfg);
@@ -48,13 +49,25 @@ KF_populated_shortest_trial = propagate_KF_path(shortest_trial, cfg);
 plot_path(KF_populated_shortest_trial, 'shortest');
 plot_covariance_evolution(KF_populated_shortest_trial, 'shortest');
 
+%% Find best path considering both path length and terminal uncertainty
+[best_trial, best_trial_idx, best_path_cost] = find_best_path( ...
+    RRT_trials, ...
+    terminal_uncertainty, ...
+    cfg.best_path_distance_weight, ...
+    cfg.best_path_uncertainty_weight);
+KF_populated_best_trial = propagate_KF_path(best_trial, cfg);
+KF_populated_best_trial.selection_cost = best_path_cost;
+plot_path(KF_populated_best_trial, 'best');
+plot_covariance_evolution(KF_populated_best_trial, 'best');
+
 %% Add trial-selection summary text box
 selection_summary = {
     sprintf('Shortest path found on trial %d of %d', shortest_trial_idx, cfg.num_RRT_trials)
-    sprintf('Minimal uncertainty path found on trial %d of %d', minimal_uncertainty_idx, cfg.num_RRT_trials)
-    sprintf('Maximal uncertainty path found on trial %d of %d', maximal_uncertainty_idx, cfg.num_RRT_trials)
+    sprintf('Minimal terminal uncertainty path found on trial %d of %d', minimal_uncertainty_idx, cfg.num_RRT_trials)
+    sprintf('Maximal terminal uncertainty path found on trial %d of %d', maximal_uncertainty_idx, cfg.num_RRT_trials)
+    sprintf('Best tradeoff path found on trial %d of %d with cost %.3f', best_trial_idx, cfg.num_RRT_trials, best_path_cost)
 };
-annotation('textbox', [0.16 0.80 0.36 0.11], ...
+annotation('textbox', [0.16 0.76 0.42 0.15], ...
     'String', selection_summary, ...
     'FitBoxToText', 'on', ...
     'BackgroundColor', [1 1 1], ...
