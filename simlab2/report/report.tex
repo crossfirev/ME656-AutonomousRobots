@@ -7,6 +7,22 @@
 \usepackage{enumitem}
 \usepackage{booktabs}
 \usepackage{xcolor}
+\usepackage{listings}
+
+\lstdefinestyle{matlabstyle}{
+    language=Matlab,
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    columns=fullflexible,
+    frame=single,
+    keepspaces=true,
+    showstringspaces=false,
+    keywordstyle=\color{blue},
+    commentstyle=\color{teal!70!black},
+    stringstyle=\color{orange!60!black}
+}
+
+\lstset{style=matlabstyle}
 
 \begin{document}
 
@@ -163,6 +179,57 @@ The MATLAB source associated with this report is organized as follows:
     \texttt{simlab2/ellipse.m}: workspace, collision-checking, and ellipse
     helper functions
 \end{itemize}
+
+\appendix
+\section{MATLAB Source Code}
+
+\subsection*{\texttt{simlab2.m}}
+\lstinputlisting[caption={\texttt{simlab2.m}}, label={lst:simlab2m}]{../simlab2.m}
+
+\subsection*{\texttt{simulation\_configuation.m}}
+\lstinputlisting[caption={\texttt{simulation\_configuation.m}}, label={lst:simulationconfiguation}]{../simulation_configuation.m}
+
+\subsection*{\texttt{RRT.m}}
+\lstinputlisting[caption={\texttt{RRT.m}}, label={lst:rrtm}]{../RRT.m}
+
+\subsection*{\texttt{Tree.m}}
+\lstinputlisting[caption={\texttt{Tree.m}}, label={lst:treem}]{../Tree.m}
+
+\subsection*{\texttt{TreeNode.m}}
+\lstinputlisting[caption={\texttt{TreeNode.m}}, label={lst:treenodem}]{../TreeNode.m}
+
+\subsection*{\texttt{propagate\_KF\_path.m}}
+\lstinputlisting[caption={\texttt{propagate\_KF\_path.m}}, label={lst:propagatekfpath}]{../propagate_KF_path.m}
+
+\subsection*{\texttt{collect\_sensor\_data.m}}
+\lstinputlisting[caption={\texttt{collect\_sensor\_data.m}}, label={lst:collectsensordata}]{../collect_sensor_data.m}
+
+\subsection*{\texttt{find\_shortest\_path.m}}
+\lstinputlisting[caption={\texttt{find\_shortest\_path.m}}, label={lst:findshortestpath}]{../find_shortest_path.m}
+
+\subsection*{\texttt{find\_best\_path.m}}
+\lstinputlisting[caption={\texttt{find\_best\_path.m}}, label={lst:findbestpath}]{../find_best_path.m}
+
+\subsection*{\texttt{plot\_path.m}}
+\lstinputlisting[caption={\texttt{plot\_path.m}}, label={lst:plotpath}]{../plot_path.m}
+
+\subsection*{\texttt{plot\_covariance\_evolution.m}}
+\lstinputlisting[caption={\texttt{plot\_covariance\_evolution.m}}, label={lst:plotcovarianceevolution}]{../plot_covariance_evolution.m}
+
+\subsection*{\texttt{selection\_color.m}}
+\lstinputlisting[caption={\texttt{selection\_color.m}}, label={lst:selectioncolor}]{../selection_color.m}
+
+\subsection*{\texttt{generate\_obstacles.m}}
+\lstinputlisting[caption={\texttt{generate\_obstacles.m}}, label={lst:generateobstacles}]{../generate_obstacles.m}
+
+\subsection*{\texttt{collision\_check\_point.m}}
+\lstinputlisting[caption={\texttt{collision\_check\_point.m}}, label={lst:collisioncheckpoint}]{../collision_check_point.m}
+
+\subsection*{\texttt{collision\_check\_segment.m}}
+\lstinputlisting[caption={\texttt{collision\_check\_segment.m}}, label={lst:collisionchecksegment}]{../collision_check_segment.m}
+
+\subsection*{\texttt{ellipse.m}}
+\lstinputlisting[caption={\texttt{ellipse.m}}, label={lst:ellipsem}]{../ellipse.m}
 
 \section*{Disclosure of Assistance}
 Generative AI was used as a supplementary tool to help interpret the assignment
