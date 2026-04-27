@@ -46,11 +46,13 @@ workspace using a Rapidly-exploring Random Tree (RRT). For each generated path,
 a linear Kalman filter covariance propagation was used to estimate the expected
 localization uncertainty along the path.
 
-The final run used 1000 RRT trials. From those trials, four representative
-paths were selected: the shortest path, the minimum terminal uncertainty path,
-the maximum terminal uncertainty path, and a best-tradeoff path. The
-best-tradeoff path was selected using a normalized cost function with equal
-weighting between path length and terminal uncertainty.
+One representative run used 1000 RRT trials. From those trials, four paths
+were selected: the shortest path, the minimum terminal uncertainty path, the
+maximum terminal uncertainty path, and a best-tradeoff path. The best-tradeoff
+path was selected using a normalized cost function with equal weighting between
+path length and terminal uncertainty. A second run using 100,000 RRT trials was
+also generated to examine how the quality of the selected paths improves as
+the number of randomized planning attempts increases.
 
 \section{Selected Paths}
 \begin{table}[H]
@@ -77,6 +79,30 @@ Best tradeoff & 811 & 103.10 & 13.55 \\
 \label{fig:selected-paths}
 \end{figure}
 
+\begin{table}[H]
+\centering
+\begin{tabular}{lccc}
+\toprule
+Path type & Trial & Path length (m) & Terminal uncertainty, $\mathrm{tr}(P)$ \\
+\midrule
+Shortest path & 60875 & 96.61 & 63.27 \\
+Minimum uncertainty & 54584 & 117.00 & 9.56 \\
+Maximum uncertainty & 40468 & 140.00 & 283.98 \\
+Best tradeoff & 58063 & 98.23 & 11.54 \\
+\bottomrule
+\end{tabular}
+\caption{Selected path outcomes from 100,000 RRT trials.}
+\label{tab:path-results-100000}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{Figure_3.png}
+\caption{Selected RRT paths and Kalman filter covariance ellipses for the
+100,000-trial run.}
+\label{fig:selected-paths-100000}
+\end{figure}
+
 The shortest path is the most direct route to the goal. It moves nearly
 horizontally across the workspace while avoiding obstacles along the way. This
 keeps the total distance low at 100 m, but the terminal uncertainty is higher
@@ -96,6 +122,14 @@ end of the path. During these portions of the trajectory, process noise
 continues to increase the covariance while there are few or no position
 measurements to reduce it. As a result, this path reaches a terminal
 uncertainty of 251.39.
+
+The 100,000-trial result reinforces the same trend while producing a stronger
+best-tradeoff path. In that run, the best-tradeoff path had a path length of
+98.23 m and terminal uncertainty of 11.54. This path was only slightly longer
+than the 96.61 m shortest path from the same run, but had much lower terminal
+uncertainty than that shortest path. This illustrates the benefit of evaluating
+many randomized RRT instances: the planner has more chances to discover paths
+that are both short and informative for localization.
 
 \section{Distance, Uncertainty, and Collision Risk}
 Traveling near obstacles can improve localization because the robot can compare
@@ -140,14 +174,17 @@ Increasing the number of RRT trials improved the quality of the selected
 paths. With more trials, the algorithm had more opportunities to sample paths
 that were smoother, more direct, or more informative from a localization
 standpoint. In this workspace, 1000 trials produced noticeably better paths
-than 100 trials.
+than 100 trials, and the 100,000-trial run produced an even stronger
+best-tradeoff path.
 
 Based on these results, 100 trials is useful but not reliably sufficient for
 finding a high-quality path. More than 100 trials gives the selection process a
 better set of candidate paths, especially when optimizing for both path length
 and localization uncertainty. For this workspace, 1000 trials provided a more
 reliable basis for identifying the shortest, minimum-uncertainty,
-maximum-uncertainty, and best-tradeoff paths.
+maximum-uncertainty, and best-tradeoff paths, while the 100,000-trial run
+showed that still larger sample counts can continue to improve the selected
+tradeoff path.
 
 \section{Assumptions}
 These observations are based on the SimLab 2 assumptions: the robot is modeled
