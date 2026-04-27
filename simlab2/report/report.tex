@@ -1,0 +1,173 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage[hidelinks]{hyperref}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{xcolor}
+
+\begin{document}
+
+\begin{center}
+{\LARGE ME 656: Autonomous Navigation for Mobile Robots}\\[0.5em]
+{\Large Simulation Lab 2 Report}\\[1em]
+\begin{tabular}{ll}
+Course: & ME 656 - Autonomous Navigation for Mobile Robots \\
+Semester: & Spring 2026 \\
+Assignment: & SimLab 2 \\
+Student: & Matthew Lepis \\
+\end{tabular}
+\end{center}
+
+\vspace{1em}
+
+\section{Overview}
+This report summarizes the path-planning and localization-uncertainty results
+for Simulation Lab 2. The robot was planned through the provided 2D obstacle
+workspace using a Rapidly-exploring Random Tree (RRT). For each generated path,
+a linear Kalman filter covariance propagation was used to estimate the expected
+localization uncertainty along the path.
+
+The final run used 1000 RRT trials. From those trials, four representative
+paths were selected: the shortest path, the minimum terminal uncertainty path,
+the maximum terminal uncertainty path, and a best-tradeoff path. The
+best-tradeoff path was selected using a normalized cost function with equal
+weighting between path length and terminal uncertainty.
+
+\section{Selected Paths}
+\begin{table}[H]
+\centering
+\begin{tabular}{lccc}
+\toprule
+Path type & Trial & Path length (m) & Terminal uncertainty, $\mathrm{tr}(P)$ \\
+\midrule
+Shortest path & 193 & 100.00 & 47.42 \\
+Minimum uncertainty & 442 & 108.00 & 9.56 \\
+Maximum uncertainty & 752 & 130.00 & 251.39 \\
+Best tradeoff & 811 & 103.10 & 13.55 \\
+\bottomrule
+\end{tabular}
+\caption{Selected path outcomes from 1000 RRT trials.}
+\label{tab:path-results}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{Figure_2.png}
+\caption{Selected RRT paths and Kalman filter covariance ellipses for the
+1000-trial run.}
+\label{fig:selected-paths}
+\end{figure}
+
+The shortest path is the most direct route to the goal. It moves nearly
+horizontally across the workspace while avoiding obstacles along the way. This
+keeps the total distance low at 100 m, but the terminal uncertainty is higher
+than both the minimum-uncertainty and best-tradeoff paths. The shortest and
+minimum-uncertainty paths pass comparably near obstacles, but they do so at
+different points in the workspace.
+
+The minimum-uncertainty path takes a longer route, with a path length of 108 m,
+but ends with much lower terminal uncertainty. A key difference is that near
+the end of its path, the robot observes an obstacle closer to the goal than it
+does on the shortest path. This gives the Kalman filter additional position
+information later in the trajectory, which reduces the final covariance.
+
+The maximum-uncertainty path is both long and poorly localized. It appears to
+spend the longest duration outside useful sensing range, especially toward the
+end of the path. During these portions of the trajectory, process noise
+continues to increase the covariance while there are few or no position
+measurements to reduce it. As a result, this path reaches a terminal
+uncertainty of 251.39.
+
+\section{Distance, Uncertainty, and Collision Risk}
+Traveling near obstacles can improve localization because the robot can compare
+range-beam observations against the known map. When an obstacle is visible from
+a horizontal beam, the robot effectively gains information about its
+$x$-position. When an obstacle is visible from a vertical beam, it gains
+information about its $y$-position. These measurements reduce the corresponding
+components of the error covariance matrix.
+
+This same behavior also introduces collision risk. Because the robot has
+nonzero localization uncertainty, the actual robot position may differ from the
+nominal planned state. If a covariance ellipse intersects an obstacle, then
+there is a plausible localization error under which the robot could be in
+collision even though the nominal path is collision-free. Therefore, a good
+path should not simply stay as close as possible to obstacles. It should use
+obstacle visibility enough to reduce uncertainty while still maintaining
+reasonable clearance.
+
+Additional distance is worthwhile only when it produces a meaningful reduction
+in uncertainty. A longer path that does not pass through informative sensing
+regions can increase distance without improving localization. To capture this
+tradeoff, the best-tradeoff path was selected using
+\[
+    J = w_d \bar{d} + w_u \bar{u},
+\]
+where $\bar{d}$ is normalized path length, $\bar{u}$ is normalized terminal
+uncertainty, and $w_d = w_u = 0.5$ for this run. With equal weighting, the
+best-tradeoff path had a path length of 103.1 m and terminal uncertainty of
+13.55. This is slightly longer than the shortest path, but it substantially
+reduces terminal uncertainty. It is also less certain than the
+minimum-uncertainty path, but it achieves most of the uncertainty reduction
+with less additional distance.
+
+The most reasonable weighting depends on the application. A time-critical task
+would place more weight on distance, while a precision navigation task would
+place more weight on uncertainty. For this run, the equal-weighted
+best-tradeoff path is a useful middle ground between minimizing travel distance
+and minimizing terminal covariance.
+
+\section{Number of RRT Trials}
+Increasing the number of RRT trials improved the quality of the selected
+paths. With more trials, the algorithm had more opportunities to sample paths
+that were smoother, more direct, or more informative from a localization
+standpoint. In this workspace, 1000 trials produced noticeably better paths
+than 100 trials.
+
+Based on these results, 100 trials is useful but not reliably sufficient for
+finding a high-quality path. More than 100 trials gives the selection process a
+better set of candidate paths, especially when optimizing for both path length
+and localization uncertainty. For this workspace, 1000 trials provided a more
+reliable basis for identifying the shortest, minimum-uncertainty,
+maximum-uncertainty, and best-tradeoff paths.
+
+\section{Assumptions}
+These observations are based on the SimLab 2 assumptions: the robot is modeled
+as a point, the workspace obstacles are known and rectangular, the robot
+follows the planned path exactly, and the Kalman filter is used to predict
+covariance growth rather than to correct a simulated perturbed trajectory. The
+results also depend on randomized RRT samples, so individual selected paths can
+change from run to run.
+
+\section{Included MATLAB Files}
+The MATLAB source associated with this report is organized as follows:
+\begin{itemize}[leftmargin=1.5em]
+    \item \texttt{simlab2/simlab2.m}: driver script that runs the RRT trials,
+    propagates covariance, selects representative paths, and plots results
+    \item \texttt{simlab2/RRT.m}, \texttt{simlab2/Tree.m}, and
+    \texttt{simlab2/TreeNode.m}: RRT implementation and tree data structures
+    \item \texttt{simlab2/propagate\_KF\_path.m} and
+    \texttt{simlab2/collect\_sensor\_data.m}: Kalman covariance propagation
+    and obstacle-visibility measurement logic
+    \item \texttt{simlab2/find\_shortest\_path.m} and
+    \texttt{simlab2/find\_best\_path.m}: path-selection helpers
+    \item \texttt{simlab2/plot\_path.m},
+    \texttt{simlab2/plot\_covariance\_evolution.m}, and
+    \texttt{simlab2/selection\_color.m}: plotting utilities for selected paths
+    and covariance ellipses
+    \item \texttt{simlab2/generate\_obstacles.m},
+    \texttt{simlab2/collision\_check\_point.m},
+    \texttt{simlab2/collision\_check\_segment.m}, and
+    \texttt{simlab2/ellipse.m}: workspace, collision-checking, and ellipse
+    helper functions
+\end{itemize}
+
+\section*{Disclosure of Assistance}
+Generative AI was used as a supplementary tool to help interpret the assignment
+prompt and assist with editing portions of this report. The MATLAB
+implementations, simulation runs, figure generation, and interpretation of the
+results were produced, verified, and submitted by me, Matthew Lepis.
+
+\end{document}
