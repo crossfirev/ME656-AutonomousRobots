@@ -1,3 +1,14 @@
+%% TreeNode.m
+% Author: Matthew Lepis
+% Course: ME 656 - Autonomous Navigation for Mobile Robots
+% Assignment: SimLab 2
+%
+% File: TreeNode.m
+%
+% Description:
+%   Defines the RRT node object used to store state, parent/child links,
+%   edge cost, and the action from its parent node.
+
 classdef TreeNode < handle
     properties
         state

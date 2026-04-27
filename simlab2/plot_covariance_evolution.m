@@ -1,3 +1,14 @@
+%% plot_covariance_evolution.m
+% Author: Matthew Lepis
+% Course: ME 656 - Autonomous Navigation for Mobile Robots
+% Assignment: SimLab 2
+%
+% File: plot_covariance_evolution.m
+%
+% Description:
+%   Plots one-standard-deviation covariance ellipses along a selected
+%   Kalman-filter-annotated path.
+
 function plot_covariance_evolution(trial, type)
     nodes = trial.path;
     if isempty(nodes)

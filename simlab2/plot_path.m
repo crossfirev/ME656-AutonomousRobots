@@ -1,3 +1,14 @@
+%% plot_path.m
+% Author: Matthew Lepis
+% Course: ME 656 - Autonomous Navigation for Mobile Robots
+% Assignment: SimLab 2
+%
+% File: plot_path.m
+%
+% Description:
+%   Plots a selected path and labels its selection type, path length, and
+%   terminal uncertainty.
+
 function plot_path(trial, type)
     path = trial.path;
     path_length = trial.path_length;

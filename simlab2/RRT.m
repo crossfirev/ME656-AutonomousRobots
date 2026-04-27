@@ -1,10 +1,15 @@
-function RRT_trials = RRT(cfg)
-%% SimLab 2 - RRT Trail runner
+%% RRT.m
 % Author: Matthew Lepis
-% Date: April 19, 2026
+% Course: ME 656 - Autonomous Navigation for Mobile Robots
+% Assignment: SimLab 2
 %
-% TODO: Add description for this file before submission.
+% File: RRT.m
 %
+% Description:
+%   Runs repeated Rapidly-exploring Random Tree trials and stores each
+%   recovered goal-reaching path with its total path length.
+
+function RRT_trials = RRT(cfg)
 
 function tree = build_RRT(x_pos_init, y_pos_init, edge_color, plot_this_run, cfg)
     tree = Tree(x_pos_init, y_pos_init, cfg);

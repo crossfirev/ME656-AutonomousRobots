@@ -1,3 +1,14 @@
+%% selection_color.m
+% Author: Matthew Lepis
+% Course: ME 656 - Autonomous Navigation for Mobile Robots
+% Assignment: SimLab 2
+%
+% File: selection_color.m
+%
+% Description:
+%   Returns consistent RGB colors for the minimum-uncertainty,
+%   maximum-uncertainty, and shortest-path plot categories.
+
 function color = selection_color(selection_type)
 selection_type = lower(char(selection_type));
 

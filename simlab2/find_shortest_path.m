@@ -1,3 +1,14 @@
+%% find_shortest_path.m
+% Author: Matthew Lepis
+% Course: ME 656 - Autonomous Navigation for Mobile Robots
+% Assignment: SimLab 2
+%
+% File: find_shortest_path.m
+%
+% Description:
+%   Finds the minimum-length RRT trial and returns both the selected trial
+%   and its trial index.
+
 function [shortest_trial, shortest_path_idx] = find_shortest_path(RRT_trials)
     num_trials = numel(RRT_trials);
     if num_trials == 0

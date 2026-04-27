@@ -1,3 +1,13 @@
+%% ellipse.m
+% Course: ME 656 - Autonomous Navigation for Mobile Robots
+% Assignment: SimLab 2
+%
+% File: ellipse.m
+%
+% Description:
+%   Draws covariance ellipses used to visualize positional uncertainty
+%   along selected RRT paths.
+
 function h=ellipse(ra,rb,ang,x0,y0,C,Nb)
 % Ellipse adds ellipses to the current plot
 %

@@ -1,3 +1,14 @@
+%% generate_obstacles.m
+% Author: Matthew Lepis
+% Course: ME 656 - Autonomous Navigation for Mobile Robots
+% Assignment: SimLab 2
+%
+% File: generate_obstacles.m
+%
+% Description:
+%   Creates and plots the SimLab 2 workspace, including the start state,
+%   goal region, and selected obstacle layout.
+
 function [start_state, goal_region, obstacles] = generate_obstacles(obstacle_layout)
 if nargin < 1
     obstacle_layout = 'original';

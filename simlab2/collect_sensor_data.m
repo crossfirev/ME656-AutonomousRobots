@@ -1,3 +1,14 @@
+%% collect_sensor_data.m
+% Author: Matthew Lepis
+% Course: ME 656 - Autonomous Navigation for Mobile Robots
+% Assignment: SimLab 2
+%
+% File: collect_sensor_data.m
+%
+% Description:
+%   Determines whether each path node has x and/or y observability from
+%   nearby range-beam intersections with mapped obstacles.
+
 function path = collect_sensor_data(path, cfg)
     nodes = path.path;
     for k = 1 : length(nodes)

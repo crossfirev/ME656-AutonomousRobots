@@ -1,3 +1,12 @@
+%% collision_check_point.m
+% Course: ME 656 - Autonomous Navigation for Mobile Robots
+% Assignment: SimLab 2
+%
+% File: collision_check_point.m
+%
+% Description:
+%   Checks whether a point lies inside any rectangular obstacle or region
+%   represented with the SimLab 2 polygon format.
 
 % This function checks whether the point (p_x,p_y) is in collision
 % with the set of obstacles described in the matrix 'obstacles',

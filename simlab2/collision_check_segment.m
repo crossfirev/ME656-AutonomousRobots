@@ -1,3 +1,12 @@
+%% collision_check_segment.m
+% Course: ME 656 - Autonomous Navigation for Mobile Robots
+% Assignment: SimLab 2
+%
+% File: collision_check_segment.m
+%
+% Description:
+%   Checks whether a line segment intersects any rectangular obstacle in
+%   the workspace.
 
 % This function checks whether the segment from (px1,py1) to (px2,py2) 
 % is in collision with the set of obstacles described in the matrix 

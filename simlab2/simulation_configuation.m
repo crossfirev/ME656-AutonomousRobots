@@ -1,3 +1,14 @@
+%% simulation_configuation.m
+% Author: Matthew Lepis
+% Course: ME 656 - Autonomous Navigation for Mobile Robots
+% Assignment: SimLab 2
+%
+% File: simulation_configuation.m
+%
+% Description:
+%   Builds the configuration struct containing workspace, RRT, sensor, and
+%   Kalman filter parameters for the SimLab 2 simulation.
+
 function sim_config = simulation_configuation(obstacle_type, num_RRT_trials, plot_RRT_modulo)
 [start_state, goal_region, obstacles] = generate_obstacles(obstacle_type);
 

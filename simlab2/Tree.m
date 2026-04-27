@@ -1,3 +1,14 @@
+%% Tree.m
+% Author: Matthew Lepis
+% Course: ME 656 - Autonomous Navigation for Mobile Robots
+% Assignment: SimLab 2
+%
+% File: Tree.m
+%
+% Description:
+%   Defines the RRT tree object and helper routines for sampling, nearest
+%   neighbor selection, collision-safe extension, and goal detection.
+
 classdef Tree < handle
     properties
         vertices

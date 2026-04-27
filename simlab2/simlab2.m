@@ -1,3 +1,14 @@
+%% simlab2.m
+% Author: Matthew Lepis
+% Course: ME 656 - Autonomous Navigation for Mobile Robots
+% Assignment: SimLab 2
+%
+% File: simlab2.m
+%
+% Description:
+%   Runs the SimLab 2 RRT and Kalman filter workflow, selects the shortest,
+%   minimum-uncertainty, and maximum-uncertainty paths, and plots the results.
+
 %% Establish configuration constants & constraint
 % "original"
 % "maze"

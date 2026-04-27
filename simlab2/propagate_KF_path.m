@@ -1,3 +1,14 @@
+%% propagate_KF_path.m
+% Author: Matthew Lepis
+% Course: ME 656 - Autonomous Navigation for Mobile Robots
+% Assignment: SimLab 2
+%
+% File: propagate_KF_path.m
+%
+% Description:
+%   Propagates Kalman filter covariance along an RRT path and returns the
+%   path annotated with state, measurement, covariance, and uncertainty data.
+
 function KF_populated_path = propagate_KF_path(path, cfg)
     %% Copy selected RRT nodes into KF-specific path structs (Performance Step, pruning dead data)
     data_pruned_path = initialize_KF_path(path);
