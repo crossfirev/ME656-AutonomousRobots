@@ -54,6 +54,94 @@ path length and terminal uncertainty. A second run using 100,000 RRT trials was
 also generated to examine how the quality of the selected paths improves as
 the number of randomized planning attempts increases.
 
+\section{Implementation Details}
+
+The main driver script, \texttt{simlab2.m}, coordinates the full simulation.
+First, \texttt{simulation\_configuation.m} builds a configuration struct that
+contains the workspace, start state, goal region, obstacle list, RRT
+parameters, sensor range, Kalman filter time step, plotting options, and
+best-path scoring weights. The driver then calls \texttt{RRT.m} to generate a
+cell array of randomized RRT trials. Each trial stores the recovered path and
+the total path length.
+
+\subsection{RRT Path Generation}
+The RRT implementation is organized around two classes: \texttt{Tree.m} and
+\texttt{TreeNode.m}. A \texttt{TreeNode} stores the 2D state, its parent and
+children, the edge cost from its parent, and the action used to reach it. The
+\texttt{Tree} object stores the list of vertices and the simulation
+configuration. During each RRT expansion, the tree samples a random state
+within the workspace bounds, finds the nearest existing tree node, and attempts
+to grow toward the sample by the fixed growth distance of 2 m.
+
+Before a new node is accepted, the code checks both the candidate point and the
+line segment from the nearest node to the candidate node. The helper function
+\texttt{collision\_check\_point.m} rejects candidate states that fall inside an
+obstacle, while \texttt{collision\_check\_segment.m} rejects edges that
+intersect obstacle boundaries. The tree continues expanding until a new node
+lands inside the goal region. Once this occurs, \texttt{RRT.m} reconstructs the
+solution path by following parent pointers from the goal node back to the root
+and summing the edge costs to obtain the path length.
+
+\subsection{Measurement Visibility and Kalman Covariance Propagation}
+After all RRT trials are generated, the driver propagates the Kalman filter
+covariance along every path using \texttt{propagate\_KF\_path.m}. This function
+first converts the selected RRT path into a lighter struct representation that
+contains only the data needed for covariance propagation. It then calls
+\texttt{collect\_sensor\_data.m} to determine which position measurements are
+available at each path node.
+
+The sensing model follows the assignment description. The robot has four
+axis-aligned range beams with range 5 m. If a horizontal beam intersects an
+obstacle, the robot is treated as having an $x$-position measurement. If a
+vertical beam intersects an obstacle, the robot is treated as having a
+$y$-position measurement. Odometry measurements of velocity are always
+available. Therefore, the measurement matrix $H_k$ changes size from node to
+node depending on obstacle visibility.
+
+For covariance propagation, the state is
+\[
+    x_k = [x\;\; y\;\; \dot{x}\;\; \dot{y}]^T.
+\]
+The code uses a constant-velocity transition matrix with $\Delta t = 1$ s,
+process noise covariance $Q=I$, initial covariance $P_0=I$, and measurement
+noise covariance $R_k=I$ with dimension matched to the available measurements.
+At each node, the predicted covariance is computed as
+\[
+    P_{k|k-1} = A P_{k-1} A^T + Q,
+\]
+and the posterior covariance is updated using the information-form expression
+\[
+    P_k =
+    \left(P_{k|k-1}^{-1} + H_k^T R_k^{-1} H_k\right)^{-1}.
+\]
+The scalar terminal uncertainty for each path is then computed as
+\[
+    \mathrm{tr}(P_{\mathrm{final}}).
+\]
+
+\subsection{Path Selection and Plotting}
+Once every trial has a terminal covariance trace, the driver selects several
+representative paths. The shortest path is selected by
+\texttt{find\_shortest\_path.m}, while the minimum- and maximum-uncertainty
+paths are selected directly from the terminal uncertainty array. The
+best-tradeoff path is selected by \texttt{find\_best\_path.m}, which normalizes
+path length and terminal uncertainty to comparable 0--1 ranges and computes
+\[
+    J = w_d \bar{d} + w_u \bar{u}.
+\]
+For the results shown here, the weights were set to $w_d=w_u=0.5$, giving
+equal importance to path length and terminal uncertainty.
+
+The plotting functions separate visualization from the planning logic.
+\texttt{plot\_path.m} draws the selected path and labels its length and
+terminal uncertainty. \texttt{plot\_covariance\_evolution.m} visualizes the
+position covariance block $P(1\!:\!2,1\!:\!2)$ at each node. The eigenvectors of
+this block determine the orientation of each ellipse, while the square roots of
+the eigenvalues determine the one-standard-deviation major and minor axes.
+The helper \texttt{selection\_color.m} keeps the path and ellipse colors
+consistent for the shortest, minimum-uncertainty, maximum-uncertainty, and
+best-tradeoff paths.
+
 \section{Selected Paths}
 \begin{table}[H]
 \centering
