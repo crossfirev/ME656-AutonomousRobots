@@ -1,11 +1,11 @@
-function plot_covariance_evolution(trial)
+function plot_covariance_evolution(trial, type)
     nodes = trial.path;
     if isempty(nodes)
         return;
     end
 
     hold on;
-    ellipse_color = [0.95, 0.65, 0.15];
+    ellipse_color = selection_color(type);
     ellipse_line_width = 1.0;
     ellipse_num_points = 60;
 

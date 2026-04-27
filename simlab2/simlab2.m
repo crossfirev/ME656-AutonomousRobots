@@ -22,20 +22,20 @@ end
 minimal_trial = RRT_trials{minimal_uncertainty_idx};
 KF_populated_minimal_trial = propagate_KF_path(minimal_trial, cfg);
 plot_path(KF_populated_minimal_trial, "min");
-plot_covariance_evolution(KF_populated_minimal_trial);
+plot_covariance_evolution(KF_populated_minimal_trial, "min");
 
 %% Find maximal terminal uncertainty path
 [maximal_uncertainty, maximal_uncertainty_idx] = max(terminal_uncertainty);
 maximal_trial = RRT_trials{maximal_uncertainty_idx};
 KF_populated_maximal_trial = propagate_KF_path(maximal_trial, cfg);
 plot_path(KF_populated_maximal_trial, 'max');
-plot_covariance_evolution(KF_populated_maximal_trial);
+plot_covariance_evolution(KF_populated_maximal_trial, 'max');
 
 %% Find Shortest Path of the trials
 [shortest_trial, shortest_trial_idx] = find_shortest_path(RRT_trials);
 KF_populated_shortest_trial = propagate_KF_path(shortest_trial, cfg);
 plot_path(KF_populated_shortest_trial, 'shortest');
-plot_covariance_evolution(KF_populated_shortest_trial);
+plot_covariance_evolution(KF_populated_shortest_trial, 'shortest');
 
 %% Add trial-selection summary text box
 selection_summary = {
