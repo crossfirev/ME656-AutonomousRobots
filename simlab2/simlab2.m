@@ -9,10 +9,31 @@ RRT_trials = simlab2_RRT(cfg);
 % RRT_trials{k}.path - holds the path array of all `TreeNodes` in `k` path.
 % RRT_trials{k}.path_length - holds the length of path `k`.
 
-%% Find Shortest Path of the trials
-shortest_path = find_shortest_path(RRT_trials);
-% `shortest_path.path` - holds the path array of all `TreeNodes` in the shortest path
-% `shortest_path.path_length` - holds the length of the shortest path
+%% Propagate the Posterior Error Covariance for all RRT paths
+% RRT_trials{k}.KF_populated_path - holds the minimal path with all relevant KF attributes, specifically Posterior Error Covariance.
+terminal_uncertainty = zeros(1, cfg.num_RRT_trials);
+for k = 1 : numel(RRT_trials)
+    RRT_trials{k}.KF_populated_path = propagate_KF_path(RRT_trials{k}, cfg);
+    terminal_uncertainty(k) = RRT_trials{k}.KF_populated_path.final_uncertainty;
+end
 
-%% Propagate the Posterior Error Covariance for the full shortest path
-KF_populated_path = propagate_KF_path(shortest_path, cfg);
+%% Find minimal terminal uncertainty path
+[minimal_uncertainty, minimal_uncertanty_idx] = min(terminal_uncertainty);
+minimal_trial = RRT_trials{minimal_uncertanty_idx};
+KF_populated_minimal_trial = propagate_KF_path(minimal_trial, cfg);
+plot_path(KF_populated_minimal_trial, "min");
+plot_covariance_evolution(KF_populated_minimal_trial);
+
+%% Find maximal terminal uncertainty path
+[maximal_uncertainty, maximal_uncertanty_idx] = max(terminal_uncertainty);
+maximal_trial = RRT_trials{maximal_uncertanty_idx};
+KF_populated_maximal_trial = propagate_KF_path(maximal_trial, cfg);
+plot_path(KF_populated_maximal_trial, 'max');
+plot_covariance_evolution(KF_populated_maximal_trial);
+
+%% Find Shortest Path of the trials
+shortest_trial = find_shortest_path(RRT_trials);
+KF_populated_shortest_trial = propagate_KF_path(shortest_trial, cfg);
+plot_path(KF_populated_shortest_trial, 'shortest');
+plot_covariance_evolution(KF_populated_shortest_trial);
+

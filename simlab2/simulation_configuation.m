@@ -26,7 +26,7 @@ time_step = 1; % second
 %
 x_bounds = [0, 100];
 y_bounds = [0, 100];
-plot_RRT_runs = true;
+plot_RRT_runs = false;
 plot_RRT_runs_w_ellipses = false;
 
 %%
