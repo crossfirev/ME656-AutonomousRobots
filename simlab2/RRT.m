@@ -1,4 +1,4 @@
-function RRT_trials = simlab2_RRT(cfg)
+function RRT_trials = RRT(cfg)
 %% SimLab 2 - RRT Trail runner
 % Author: Matthew Lepis
 % Date: April 19, 2026

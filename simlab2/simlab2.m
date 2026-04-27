@@ -5,7 +5,7 @@
 cfg = simulation_configuation("original", 100, 33);
 
 %% Run 'Rapidly expanding Random Tree' (RRT) trials to find many valid paths to goal. 
-RRT_trials = simlab2_RRT(cfg);
+RRT_trials = RRT(cfg);
 % RRT_trials{k}.path - holds the path array of all `TreeNodes` in `k` path.
 % RRT_trials{k}.path_length - holds the length of path `k`.
 
