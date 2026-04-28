@@ -8,13 +8,14 @@
 % Description:
 %   Runs the SimLab 2 RRT and Kalman filter workflow, selects the shortest,
 %   minimum-uncertainty, maximum-uncertainty, and best-tradeoff paths, and
-%   plots the results.
+%   plots the results. Also runs the particle filter extra-credit plots for
+%   the shortest, minimum-uncertainty, and maximum-uncertainty paths.
 
 %% Establish configuration constants & constraint
 % "original"
 % "maze"
 % "spiral"
-cfg = simulation_configuation("original", 1000, 33);
+cfg = simulation_configuation("original", 100000, 33);
 
 %% Run 'Rapidly expanding Random Tree' (RRT) trials to find many valid paths to goal. 
 RRT_trials = RRT(cfg);
@@ -74,3 +75,16 @@ annotation('textbox', [0.16 0.76 0.42 0.15], ...
     'EdgeColor', [0.25 0.25 0.25], ...
     'FontSize', 10, ...
     'FontWeight', 'bold');
+
+%% Extra Credit: Particle filter over selected paths
+shortest_particle_filter = run_particle_filter_path(KF_populated_shortest_trial, cfg);
+plot_particle_filter_evolution(shortest_particle_filter, 'shortest', cfg);
+
+minimal_particle_filter = run_particle_filter_path(KF_populated_minimal_trial, cfg);
+plot_particle_filter_evolution(minimal_particle_filter, 'min', cfg);
+
+maximal_particle_filter = run_particle_filter_path(KF_populated_maximal_trial, cfg);
+plot_particle_filter_evolution(maximal_particle_filter, 'max', cfg);
+
+best_particle_filter = run_particle_filter_path(KF_populated_best_trial, cfg);
+plot_particle_filter_evolution(best_particle_filter, 'best', cfg);

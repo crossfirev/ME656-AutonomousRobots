@@ -46,6 +46,15 @@ plot_RRT_runs_w_ellipses = false;
 best_path_distance_weight = 0.5;
 best_path_uncertainty_weight = 0.5;
 
+%
+% Particle filter extra credit
+%
+particle_filter_num_particles = 100;
+particle_filter_num_snapshots = 20;
+particle_filter_initial_variance = 1;
+particle_filter_process_variance = 1;
+particle_filter_sensor_variance = 1;
+
 %%
 cfg.start_state = start_state;
 cfg.goal_region = goal_region;
@@ -65,6 +74,11 @@ cfg.plot_RRT_runs_w_ellipses = plot_RRT_runs_w_ellipses;
 cfg.plot_RRT_modulo = plot_RRT_modulo;
 cfg.best_path_distance_weight = best_path_distance_weight;
 cfg.best_path_uncertainty_weight = best_path_uncertainty_weight;
+cfg.particle_filter_num_particles = particle_filter_num_particles;
+cfg.particle_filter_num_snapshots = particle_filter_num_snapshots;
+cfg.particle_filter_initial_variance = particle_filter_initial_variance;
+cfg.particle_filter_process_variance = particle_filter_process_variance;
+cfg.particle_filter_sensor_variance = particle_filter_sensor_variance;
 %
 sim_config = cfg;
 end
